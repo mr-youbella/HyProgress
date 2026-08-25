@@ -1,0 +1,272 @@
+<svg
+  width="512"
+  height="512"
+  viewBox="0 0 240 240"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <defs>
+
+    <!-- Cube gradient -->
+    <linearGradient
+      id="cube"
+      x1="40"
+      y1="30"
+      x2="200"
+      y2="210"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="0.5" stop-color="#4F8CFF"/>
+      <stop offset="1" stop-color="#00D9FF"/>
+    </linearGradient>
+
+    <!-- Progress gradient -->
+    <linearGradient
+      id="arrow"
+      x1="55"
+      y1="185"
+      x2="195"
+      y2="100"
+      gradientUnits="userSpaceOnUse"
+    >
+      <stop offset="0" stop-color="#00D9FF"/>
+      <stop offset="1" stop-color="#7C5CFF"/>
+    </linearGradient>
+
+    <!-- Progress glow -->
+    <filter
+      id="glow"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+    >
+      <feGaussianBlur
+        stdDeviation="6"
+        result="blur"
+      />
+
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Cube shadow -->
+    <filter
+      id="shadow"
+      x="-50%"
+      y="-50%"
+      width="200%"
+      height="200%"
+    >
+      <feDropShadow
+        dx="0"
+        dy="8"
+        stdDeviation="8"
+        flood-opacity="0.35"
+      />
+    </filter>
+
+  </defs>
+
+
+  <!-- ================================================= -->
+  <!-- CUBE -->
+  <!-- ================================================= -->
+
+  <g filter="url(#shadow)">
+
+    <!-- Main cube -->
+    <path
+      d="
+        M120 20
+        L205 68
+        L205 162
+        L120 210
+        L35 162
+        L35 68
+        Z
+      "
+      fill="#151A2B"
+      stroke="url(#cube)"
+      stroke-width="7"
+      stroke-linejoin="round"
+    />
+
+    <!-- Top face -->
+    <path
+      d="
+        M120 20
+        L205 68
+        L120 116
+        L35 68
+        Z
+      "
+      fill="#242B45"
+      stroke="url(#cube)"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+
+    <!-- Left face -->
+    <path
+      d="
+        M35 68
+        L120 116
+        L120 210
+        L35 162
+        Z
+      "
+      fill="#1B2136"
+      stroke="url(#cube)"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+
+    <!-- Right face -->
+    <path
+      d="
+        M120 116
+        L205 68
+        L205 162
+        L120 210
+        Z
+      "
+      fill="#202841"
+      stroke="url(#cube)"
+      stroke-width="5"
+      stroke-linejoin="round"
+    />
+
+
+    <!-- =============================================== -->
+    <!-- H — SHARP GEOMETRIC STYLE -->
+    <!-- =============================================== -->
+
+    <!-- Left H stroke -->
+    <path
+      d="
+        M67 61
+        L94 47
+        L94 94
+        L120 108
+        L120 136
+        L94 122
+        L94 164
+        L67 179
+        Z
+      "
+      fill="white"
+    />
+
+    <!-- Right H stroke -->
+    <path
+      d="
+        M173 61
+        L146 47
+        L146 94
+        L120 108
+        L120 136
+        L146 122
+        L146 164
+        L173 179
+        Z
+      "
+      fill="white"
+    />
+
+
+    <!-- =============================================== -->
+    <!-- H INNER CUT / NEGATIVE SPACE -->
+    <!-- =============================================== -->
+
+    <path
+      d="
+        M94 94
+        L120 108
+        L146 94
+        L146 122
+        L120 136
+        L94 122
+        Z
+      "
+      fill="#DDE4FF"
+    />
+
+
+    <!-- =============================================== -->
+    <!-- H HIGHLIGHTS -->
+    <!-- =============================================== -->
+
+    <!-- Left highlight -->
+    <path
+      d="
+        M67 61
+        L94 47
+        L94 61
+        L80 69
+        L80 156
+        L67 163
+        Z
+      "
+      fill="#DDE4FF"
+    />
+
+    <!-- Right highlight -->
+    <path
+      d="
+        M173 61
+        L146 47
+        L146 61
+        L160 69
+        L160 156
+        L173 163
+        Z
+      "
+      fill="#C7D2FF"
+    />
+
+  </g>
+
+
+  <!-- ================================================= -->
+  <!-- PROGRESS -->
+  <!-- ================================================= -->
+
+  <g filter="url(#glow)">
+
+    <!-- Progress line -->
+    <path
+      d="
+        M52 181
+        L83 150
+        L105 171
+        L135 141
+        L154 160
+        L194 120
+      "
+      stroke="url(#arrow)"
+      stroke-width="11"
+      stroke-linecap="square"
+      stroke-linejoin="miter"
+    />
+
+    <!-- Arrow head -->
+    <path
+      d="
+        M168 120
+        H194
+        V146
+      "
+      stroke="#00D9FF"
+      stroke-width="11"
+      stroke-linecap="square"
+      stroke-linejoin="miter"
+    />
+
+  </g>
+
+</svg>

@@ -22,33 +22,65 @@ export const XP_SOURCES: XpSource[] = [
 
 const MAX_XP_EACH = Math.max(...XP_SOURCES.map((source) => source.xpEach));
 
-export function calculateCurrentLevel(totalXp: number): number
-{
-	return Math.floor(totalXp / XP_PER_LEVEL);
+export function getLevelStartXp(level: number): number {
+	if (level <= 0) return 0;
+	if (level === 1) return 500;
+	if (level === 2) return 1500;
+	if (level === 3) return 3500;
+	if (level === 4) return 7000;
+
+	return 7000 + (level - 4) * XP_PER_LEVEL;
 }
 
-export function calculateXpIntoLevel(totalXp: number): number
-{
-	return totalXp % XP_PER_LEVEL;
+export function getLevelXp(level: number): number {
+	if (level === 0) return 500;
+	if (level === 1) return 1000;
+	if (level === 2) return 2000;
+	if (level === 3) return 3500;
+
+	return XP_PER_LEVEL;
 }
 
-export function calculateXpRemaining(totalXp: number): number
-{
+export function calculateCurrentLevel(totalXp: number): number {
+	if (totalXp < 500) return 0;
+	if (totalXp < 1500) return 1;
+	if (totalXp < 3500) return 2;
+	if (totalXp < 7000) return 3;
+
+	return 4 + Math.floor((totalXp - 7000) / XP_PER_LEVEL);
+}
+
+export function calculateXpIntoLevel(totalXp: number): number {
+	const level = calculateCurrentLevel(totalXp);
+	const levelStartXp = getLevelStartXp(level);
+
+	return totalXp - levelStartXp;
+}
+
+export function calculateXpRemaining(totalXp: number): number {
+	const level = calculateCurrentLevel(totalXp);
 	const xpIntoLevel = calculateXpIntoLevel(totalXp);
-	if (xpIntoLevel === 0)
-		return 0;
+	const xpNeeded = getLevelXp(level);
 
-	return XP_PER_LEVEL - xpIntoLevel;
+	return Math.max(0, xpNeeded - xpIntoLevel);
 }
 
-export function calculateSourceCounts(xpRemaining: number): XpSourceCount[]
-{
-	return XP_SOURCES.map((source) =>
-	{
-		return {
-			...source,
-			count: Math.ceil(xpRemaining / source.xpEach),
-			efficiencyPercent: Math.round((source.xpEach / MAX_XP_EACH) * 100)
-		};
-	});
+export function calculateProgressPercent(totalXp: number): number {
+	const level = calculateCurrentLevel(totalXp);
+	const xpIntoLevel = calculateXpIntoLevel(totalXp);
+	const xpNeeded = getLevelXp(level);
+
+	if (xpNeeded <= 0) return 0;
+
+	return Math.round((xpIntoLevel / xpNeeded) * 100);
+}
+
+export function calculateSourceCounts(xpRemaining: number): XpSourceCount[] {
+	return XP_SOURCES.map((source) => ({
+		...source,
+		count: xpRemaining > 0
+			? Math.ceil(xpRemaining / source.xpEach)
+			: 0,
+		efficiencyPercent: Math.round((source.xpEach / MAX_XP_EACH) * 100)
+	}));
 }

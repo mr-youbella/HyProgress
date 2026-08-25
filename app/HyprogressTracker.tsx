@@ -1,36 +1,53 @@
 "use client";
 import { useState } from "react";
-import { XP_PER_LEVEL, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
+import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
 type PlayerData = {
 	username: string;
 	totalXp: number;
 };
 
-const MOCK_PLAYER: PlayerData = {
-	username: "Youbella",
-	totalXp: 228400
-};
-
 export default function HyprogressTracker() {
 	const [searchInput, setSearchInput] = useState("");
 	const [player, setPlayer] = useState<PlayerData | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
 	async function handleSearch() {
-		if (!searchInput.trim())
+		const username = searchInput.trim();
+
+		if (!username || isLoading)
 			return;
 
 		setIsLoading(true);
-		await new Promise((resolve) => setTimeout(resolve, 350));
-		setPlayer({ ...MOCK_PLAYER, username: searchInput.trim() });
-		setIsLoading(false);
+		setPlayer(null);
+		setError(null);
+
+		try {
+			const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
+			const data = await response.json();
+			if (!response.ok)
+				throw new Error(data.error || "Failed to find player");
+
+			if (typeof data.xp !== "number" || !data.username)
+				throw new Error("Invalid player data");
+
+			setPlayer({
+				username: data.username,
+				totalXp: data.xp,
+			});
+		} catch (error) {
+			console.error("Player search error:", error);
+			setError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+		} finally {
+			setIsLoading(false);
+		}
 	}
 
 	const currentLevel = player ? calculateCurrentLevel(player.totalXp) : 0;
 	const xpIntoLevel = player ? calculateXpIntoLevel(player.totalXp) : 0;
 	const xpRemaining = player ? calculateXpRemaining(player.totalXp) : 0;
-	const progressPercent = player ? Math.round((xpIntoLevel / XP_PER_LEVEL) * 100) : 0;
+	const progressPercent = player ? Math.round((xpIntoLevel / getLevelXp(currentLevel)) * 100) : 0;
 	const sourceCounts = player ? calculateSourceCounts(xpRemaining) : [];
 
 	return (
@@ -76,6 +93,11 @@ export default function HyprogressTracker() {
 							{isLoading ? "..." : "Search"}
 						</button>
 					</div>
+					{error && (
+						<p className="mt-3 text-xs text-red-400">
+							{error}
+						</p>
+					)}
 				</section>
 
 				{player && (
@@ -94,7 +116,10 @@ export default function HyprogressTracker() {
 							<div className="w-full sm:w-72">
 								<div className="mb-1.5 flex justify-between font-mono text-[11px] text-slate-500">
 									<span>LVL {currentLevel} &rarr; {currentLevel + 1}</span>
-									<span>{xpIntoLevel.toLocaleString()} / {XP_PER_LEVEL.toLocaleString()}</span>
+									<span><span>
+										{xpIntoLevel.toLocaleString()} /{" "}
+										{getLevelXp(currentLevel).toLocaleString()}
+									</span></span>
 								</div>
 								<div className="h-2 overflow-hidden rounded-full bg-slate-800">
 									<div
@@ -140,10 +165,6 @@ export default function HyprogressTracker() {
 						</section>
 					</>
 				)}
-
-				<footer className="border-t border-slate-800 py-6 text-center text-[11px] tracking-wide text-slate-600">
-					DATA REFRESHED MOMENTS AGO &middot; HYPROGRESS
-				</footer>
 			</div>
 		</div>
 	);
