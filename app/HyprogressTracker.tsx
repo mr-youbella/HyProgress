@@ -1,11 +1,27 @@
 "use client";
 import { useState } from "react";
-import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 import Image from "next/image";
+import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
 type PlayerData = {
 	username: string;
+	skinUrl: string;
 	totalXp: number;
+	online: boolean;
+	gameType: string | null;
+	mode: string | null;
+	lastLogin: number | null;
+	guildName: string | null;
+	guildTag: string | null;
+	guildRank: string | null;
+	wins: number;
+	losses: number;
+	kills: number;
+	deaths: number;
+	finalKills: number;
+	finalDeaths: number;
+	bedsBroken: number;
+	bedsLost: number;
 };
 
 type CategoryId = "wins" | "combat" | "resources" | "time";
@@ -56,6 +72,68 @@ function getPrestigeTier(level: number): PrestigeTier {
 	return { textClass: "text-stone-300", fillClass: "bg-stone-400" };
 }
 
+function formatRatio(numerator: number, denominator: number): string {
+	if (denominator === 0)
+		return numerator > 0 ? "∞" : "0.00";
+
+	return (numerator / denominator).toFixed(2);
+}
+
+function humanizeToken(value: string): string {
+	return value
+		.toLowerCase()
+		.split("_")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+}
+
+function formatRelativeTime(timestampMs: number): string {
+	const diffMs = Date.now() - timestampMs;
+	const minute = 60_000;
+	const hour = 60 * minute;
+	const day = 24 * hour;
+
+	if (diffMs < minute)
+		return "just now";
+	if (diffMs < hour)
+		return `${Math.floor(diffMs / minute)}m ago`;
+	if (diffMs < day)
+		return `${Math.floor(diffMs / hour)}h ago`;
+
+	return `${Math.floor(diffMs / day)}d ago`;
+}
+
+type StatTile = {
+	label: string;
+	value: string;
+	valueClass: string;
+};
+
+function buildStatRows(player: PlayerData): StatTile[][] {
+	return [
+		[
+			{ label: "Wins", value: player.wins.toLocaleString(), valueClass: "text-emerald-400" },
+			{ label: "Losses", value: player.losses.toLocaleString(), valueClass: "text-rose-400" },
+			{ label: "WLR", value: formatRatio(player.wins, player.losses), valueClass: "text-amber-400" }
+		],
+		[
+			{ label: "Final Kills", value: player.finalKills.toLocaleString(), valueClass: "text-emerald-400" },
+			{ label: "Final Deaths", value: player.finalDeaths.toLocaleString(), valueClass: "text-rose-400" },
+			{ label: "FKDR", value: formatRatio(player.finalKills, player.finalDeaths), valueClass: "text-amber-400" }
+		],
+		[
+			{ label: "Kills", value: player.kills.toLocaleString(), valueClass: "text-emerald-400" },
+			{ label: "Deaths", value: player.deaths.toLocaleString(), valueClass: "text-rose-400" },
+			{ label: "KDR", value: formatRatio(player.kills, player.deaths), valueClass: "text-amber-400" }
+		],
+		[
+			{ label: "Beds Broken", value: player.bedsBroken.toLocaleString(), valueClass: "text-emerald-400" },
+			{ label: "Beds Lost", value: player.bedsLost.toLocaleString(), valueClass: "text-rose-400" },
+			{ label: "BBLR", value: formatRatio(player.bedsBroken, player.bedsLost), valueClass: "text-amber-400" }
+		]
+	];
+}
+
 export default function HyprogressTracker() {
 	const [searchInput, setSearchInput] = useState("");
 	const [player, setPlayer] = useState<PlayerData | null>(null);
@@ -82,7 +160,26 @@ export default function HyprogressTracker() {
 			if (typeof data.xp !== "number" || !data.username)
 				throw new Error("Hypixel returned unexpected data for that player.");
 
-			setPlayer({ username: data.username, totalXp: data.xp });
+			setPlayer({
+				username: data.username,
+				skinUrl: data.skinUrl,
+				totalXp: data.xp,
+				online: Boolean(data.online),
+				gameType: data.gameType ?? null,
+				mode: data.mode ?? null,
+				lastLogin: data.lastLogin ?? null,
+				guildName: data.guildName ?? null,
+				guildTag: data.guildTag ?? null,
+				guildRank: data.guildRank ?? null,
+				wins: data.wins ?? 0,
+				losses: data.losses ?? 0,
+				kills: data.kills ?? 0,
+				deaths: data.deaths ?? 0,
+				finalKills: data.finalKills ?? 0,
+				finalDeaths: data.finalDeaths ?? 0,
+				bedsBroken: data.bedsBroken ?? 0,
+				bedsLost: data.bedsLost ?? 0
+			});
 		}
 		catch (error) {
 			console.error("Player search error:", error);
@@ -100,6 +197,7 @@ export default function HyprogressTracker() {
 	const progressPercent = player ? Math.round((xpIntoLevel / levelXp) * 100) : 0;
 	const sourceCounts = player ? calculateSourceCounts(xpRemaining) : [];
 	const tier = getPrestigeTier(currentLevel);
+	const statRows = player ? buildStatRows(player) : [];
 
 	const groupedSources = CATEGORY_ORDER.map((categoryId) => {
 		return {
@@ -111,12 +209,11 @@ export default function HyprogressTracker() {
 
 	return (
 		<div className="relative min-h-screen overflow-hidden bg-[#0B0B0F] text-stone-100">
-
 			<div className="relative mx-auto max-w-2xl px-5 pb-24 sm:px-6">
 				<header className="flex items-center justify-between border-b border-white/10 py-6">
 					<div className="flex items-center gap-2">
-						<Image src="/logo.svg" alt="Hyprogress" width={30} height={30} className="rounded-sm" />
-						<span className="text-[13px] font-semibold tracking-[0.08em]">HyPprogress</span>
+						<Image src="/logo.svg" alt="Hyprogress" width={20} height={20} className="rounded-sm" />
+						<span className="text-[13px] font-semibold tracking-[0.08em]">HYPROGRESS</span>
 					</div>
 					<span className="text-[11px] tracking-[0.14em] text-stone-500">TRACKER</span>
 				</header>
@@ -138,7 +235,7 @@ export default function HyprogressTracker() {
 								&gt;
 							</span>
 							<input
-								className="w-full rounded-lg border border-white/10 bg-white/3 py-3 pl-8 pr-4 font-mono text-sm text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
+								className="w-full rounded-lg border border-white/10 bg-white/[0.03] py-3 pl-8 pr-4 font-mono text-sm text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
 								placeholder="e.g. Technoblade"
 								value={searchInput}
 								onChange={(event) => setSearchInput(event.target.value)}
@@ -161,15 +258,41 @@ export default function HyprogressTracker() {
 
 				{player && (
 					<section className="pt-12">
-						<div className="rounded-2xl bg-linear-to-b from-white/6 to-white/0 p-px">
+						<div className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/0 p-px">
 							<div className="rounded-[15px] bg-[#101014] px-6 py-7 sm:px-8">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 									<div className="flex items-center gap-4">
+										<Image
+											src={player.skinUrl}
+											alt={`${player.username}'s skin`}
+											width={48}
+											height={48}
+											className="rounded-md border border-white/10"
+										/>
 										<span className={`font-mono text-5xl font-bold tabular-nums ${tier.textClass}`}>
 											{currentLevel}
 										</span>
-										<span className={`h-1.5 w-1.5 rounded-full ${tier.fillClass}`} />
-										<p className="font-['Fraunces'] text-xl text-stone-50">{player.username}</p>
+										<div>
+											<div className="mb-1 flex items-center gap-2">
+												<span className={`h-1.5 w-1.5 rounded-full ${player.online ? "bg-emerald-400" : "bg-stone-600"}`} />
+												<span className="text-[10px] tracking-[0.14em] text-stone-500">
+													{player.online ? "ONLINE" : "OFFLINE"}
+												</span>
+											</div>
+											<p className="font-['Fraunces'] text-xl text-stone-50">{player.username}</p>
+											<p className="mt-0.5 text-[11px] text-stone-500">
+												{player.online && player.gameType
+													? `Playing ${humanizeToken(player.gameType)}${player.mode ? ` · ${humanizeToken(player.mode)}` : ""}`
+													: !player.online && player.lastLogin
+														? `Last seen ${formatRelativeTime(player.lastLogin)}`
+														: null}
+											</p>
+											<p className="mt-0.5 text-[11px] text-stone-600">
+												{player.guildName
+													? `${player.guildTag ? `[${player.guildTag}] ` : ""}${player.guildName}`
+													: "No guild"}
+											</p>
+										</div>
 									</div>
 									<div className="font-mono text-sm text-stone-500">
 										{player.totalXp.toLocaleString()} XP total
@@ -184,6 +307,22 @@ export default function HyprogressTracker() {
 									<div className="h-1.5 overflow-hidden rounded-full bg-white/5">
 										<div className="h-full rounded-full bg-emerald-400" style={{ width: `${progressPercent}%` }} />
 									</div>
+								</div>
+
+								<div className="relative my-7">
+									<div className="absolute -left-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0B0B0F] sm:-left-11" />
+									<div className="absolute -right-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0B0B0F] sm:-right-11" />
+									<div className="border-t border-dashed border-white/15" />
+								</div>
+
+								<h2 className="mb-3 text-[13px] font-semibold tracking-[0.08em] text-stone-200">BEDWARS STATS</h2>
+								<div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-white/10">
+									{statRows.flat().map((tile, index) => (
+										<div key={index} className="bg-[#101014] px-3 py-4 text-center">
+											<p className="mb-1.5 text-[10px] tracking-[0.1em] text-stone-500">{tile.label.toUpperCase()}</p>
+											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
+										</div>
+									))}
 								</div>
 
 								<div className="relative my-7">
