@@ -235,7 +235,7 @@ export default function HyprogressTracker() {
 								&gt;
 							</span>
 							<input
-								className="w-full rounded-lg border border-white/10 bg-white/[0.03] py-3 pl-8 pr-4 font-mono text-sm text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
+								className="w-full rounded-lg border border-white/10 bg-white/3 py-3 pl-8 pr-4 font-mono text-[16px] text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
 								placeholder="e.g. Technoblade"
 								value={searchInput}
 								onChange={(event) => setSearchInput(event.target.value)}
@@ -258,7 +258,7 @@ export default function HyprogressTracker() {
 
 				{player && (
 					<section className="pt-12">
-						<div className="rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/0 p-px">
+						<div className="rounded-2xl bg-linear-to-brom-white/[0.06] to-white/0 p-px">
 							<div className="rounded-[15px] bg-[#101014] px-6 py-7 sm:px-8">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 									<div className="flex items-center gap-4">
@@ -319,7 +319,7 @@ export default function HyprogressTracker() {
 								<div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-white/10">
 									{statRows.flat().map((tile, index) => (
 										<div key={index} className="bg-[#101014] px-3 py-4 text-center">
-											<p className="mb-1.5 text-[10px] tracking-[0.1em] text-stone-500">{tile.label.toUpperCase()}</p>
+											<p className="mb-1.5 text-[10px] tracking-widest text-stone-500">{tile.label.toUpperCase()}</p>
 											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
 										</div>
 									))}
