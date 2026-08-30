@@ -14,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 
 		const mojangResponse = await fetch(
 			`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`,
-			{ cache: "no-store" }
+			{ next: { revalidate: 30 } }
 		);
 
 		if (!mojangResponse.ok)
@@ -25,15 +25,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 		const [playerResponse, statusResponse, guildResponse] = await Promise.all([
 			fetch(`https://api.hypixel.net/v2/player?uuid=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				cache: "no-store"
+				next: { revalidate: 30 }
 			}),
 			fetch(`https://api.hypixel.net/v2/status?uuid=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				cache: "no-store"
+				next: { revalidate: 30 }
 			}),
 			fetch(`https://api.hypixel.net/v2/guild?player=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				cache: "no-store"
+				next: { revalidate: 30 }
 			})
 		]);
 
