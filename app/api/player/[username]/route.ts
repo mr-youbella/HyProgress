@@ -14,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 
 		const mojangResponse = await fetch(
 			`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`,
-			{ next: { revalidate: 30 } }
+			{ next: { revalidate: 300 } }
 		);
 
 		if (!mojangResponse.ok)
