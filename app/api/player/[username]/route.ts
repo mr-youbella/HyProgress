@@ -56,6 +56,20 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			(member: { uuid: string }) => member.uuid === mojangData.id
 		);
 
+		const player = hypixelData.player;
+		let hypixelRank = null;
+		
+		if (player) {
+			if (player.rank)
+				hypixelRank = player.rank;
+			else if (player.monthlyPackageRank && player.monthlyPackageRank !== "NONE")
+				hypixelRank = player.monthlyPackageRank;
+			else if (player.newPackageRank && player.newPackageRank !== "NONE" && player.newPackageRank !== "DEFAULT")
+				hypixelRank = player.newPackageRank;
+			else if (player.packageRank && player.packageRank !== "NONE" && player.packageRank !== "DEFAULT")
+				hypixelRank = player.packageRank;
+		}
+
 		return NextResponse.json({
 			username: mojangData.name,
 			skinUrl: `https://statsify.net/api/skin/head?uuid=${mojangData.id}&size=32`,
@@ -63,11 +77,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			online: isOnline,
 			gameType: isOnline ? statusData.session?.gameType ?? null : null,
 			mode: isOnline ? statusData.session?.mode ?? null : null,
-			lastLogin: hypixelData.player?.lastLogin ?? null,
-			firstLogin: hypixelData.player?.firstLogin ?? null,
+			lastLogin: player?.lastLogin ?? null,
+			firstLogin: player?.firstLogin ?? null,
 			guildName: guild?.name ?? null,
 			guildTag: guild?.tag ?? null,
 			guildRank: guildMember?.rank ?? null,
+			hypixelRank: hypixelRank,
 			wins: bedwars.wins_bedwars ?? 0,
 			losses: bedwars.losses_bedwars ?? 0,
 			kills: bedwars.kills_bedwars ?? 0,

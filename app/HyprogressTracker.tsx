@@ -15,6 +15,7 @@ type PlayerData = {
 	guildName: string | null;
 	guildTag: string | null;
 	guildRank: string | null;
+	hypixelRank: string | null;
 	wins: number;
 	losses: number;
 	kills: number;
@@ -112,6 +113,79 @@ function formatDate(timestampMs: number): string {
 	});
 }
 
+function getHypixelRankColor(rank: string | null): string {
+	if (!rank)
+		return "text-stone-400";
+	
+	const rankUpper = rank.toUpperCase();
+	
+	if (rankUpper.includes("YOUTUBE") || rankUpper.includes("YT")) 
+		return "text-red-500";
+	if (rankUpper.includes("ADMIN")) 
+		return "text-red-500";
+	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD")) 
+		return "text-emerald-400";
+	if (rankUpper.includes("HELPER")) 
+		return "text-blue-400";
+	
+	if (rankUpper.includes("SUPERSTAR") || rankUpper.includes("MVP++")) 
+		return "text-amber-400";
+	
+	if (rankUpper === "MVP_PLUS" || rankUpper.includes("MVP+")) 
+		return "text-cyan-400";
+	
+	if (rankUpper === "MVP" || rankUpper.includes("MVP")) 
+		return "text-cyan-300";
+	
+	if (rankUpper === "VIP_PLUS" || rankUpper.includes("VIP+")) 
+		return "text-emerald-300";
+	
+	if (rankUpper === "VIP" || rankUpper.includes("VIP")) 
+		return "text-emerald-500";
+	
+	return "text-stone-400";
+}
+
+function getRankPrefix(rank: string | null): string {
+	if (!rank)
+		return "";
+	
+	const rankUpper = rank.toUpperCase();
+	
+	if (rankUpper.includes("YOUTUBE")) 
+		return "[YOUTUBE] ";
+	if (rankUpper.includes("ADMIN")) 
+		return "[ADMIN] ";
+	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD")) 
+		return "[MOD] ";
+	if (rankUpper.includes("HELPER")) 
+		return "[HELPER] ";
+	
+	if (rankUpper.includes("SUPERSTAR")) 
+		return "[MVP++] ";
+	if (rankUpper === "MVP_PLUS") 
+		return "[MVP+] ";
+	if (rankUpper === "MVP") 
+		return "[MVP] ";
+	if (rankUpper === "VIP_PLUS") 
+		return "[VIP+] ";
+	if (rankUpper === "VIP") 
+		return "[VIP] ";
+	
+	if (rankUpper.includes("MVP++")) 
+		return "[MVP++] ";
+	if (rankUpper.includes("MVP+")) 
+		return "[MVP+] ";
+	if (rankUpper.includes("MVP")) 
+		return "[MVP] ";
+	if (rankUpper.includes("VIP+")) 
+		return "[VIP+] ";
+	if (rankUpper.includes("VIP")) 
+		return "[VIP] ";
+	
+	return "";
+}
+
 type StatTile = {
 	label: string;
 	value: string;
@@ -181,6 +255,7 @@ export default function HyprogressTracker() {
 				guildName: data.guildName ?? null,
 				guildTag: data.guildTag ?? null,
 				guildRank: data.guildRank ?? null,
+				hypixelRank: data.hypixelRank ?? null,
 				wins: data.wins ?? 0,
 				losses: data.losses ?? 0,
 				kills: data.kills ?? 0,
@@ -289,7 +364,16 @@ export default function HyprogressTracker() {
 													{player.online ? "ONLINE" : "OFFLINE"}
 												</span>
 											</div>
-											<p className="font-['Fraunces'] text-xl text-stone-50">{player.username}</p>
+											<div className="flex items-center gap-1 flex-wrap">
+												{player.hypixelRank && (
+													<span className={`text-xs font-bold ${getHypixelRankColor(player.hypixelRank)}`}>
+														{getRankPrefix(player.hypixelRank).trim()}
+													</span>
+												)}
+												<p className={`font-['Fraunces'] text-xl ${getHypixelRankColor(player.hypixelRank)}`}>
+													{player.username}
+												</p>
+											</div>
 											<p className="mt-0.5 text-[11px] text-stone-500">
 												{player.online && player.gameType
 													? `Playing ${humanizeToken(player.gameType)}${player.mode ? ` · ${humanizeToken(player.mode)}` : ""}`
