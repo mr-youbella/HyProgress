@@ -11,6 +11,7 @@ type PlayerData = {
 	gameType: string | null;
 	mode: string | null;
 	lastLogin: number | null;
+	firstLogin: number | null;
 	guildName: string | null;
 	guildTag: string | null;
 	guildRank: string | null;
@@ -103,6 +104,14 @@ function formatRelativeTime(timestampMs: number): string {
 	return `${Math.floor(diffMs / day)}d ago`;
 }
 
+function formatDate(timestampMs: number): string {
+	return new Date(timestampMs).toLocaleDateString('en-US', {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric'
+	});
+}
+
 type StatTile = {
 	label: string;
 	value: string;
@@ -168,6 +177,7 @@ export default function HyprogressTracker() {
 				gameType: data.gameType ?? null,
 				mode: data.mode ?? null,
 				lastLogin: data.lastLogin ?? null,
+				firstLogin: data.firstLogin ?? null,
 				guildName: data.guildName ?? null,
 				guildTag: data.guildTag ?? null,
 				guildRank: data.guildRank ?? null,
@@ -287,7 +297,15 @@ export default function HyprogressTracker() {
 														? `Last seen ${formatRelativeTime(player.lastLogin)}`
 														: null}
 											</p>
-											<p className="mt-0.5 text-[11px] text-stone-600">
+											{player.firstLogin && (
+												<p className="mt-1 flex items-center gap-1.5 text-[10px] text-stone-600">
+													<svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+													</svg>
+													<span>First seen {formatDate(player.firstLogin)}</span>
+												</p>
+											)}
+											<p className="mt-1 text-[11px] text-stone-600">
 												{player.guildName
 													? `${player.guildTag ? `[${player.guildTag}] ` : ""}${player.guildName}`
 													: "No guild"}

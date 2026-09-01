@@ -64,6 +64,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			gameType: isOnline ? statusData.session?.gameType ?? null : null,
 			mode: isOnline ? statusData.session?.mode ?? null : null,
 			lastLogin: hypixelData.player?.lastLogin ?? null,
+			firstLogin: hypixelData.player?.firstLogin ?? null,
 			guildName: guild?.name ?? null,
 			guildTag: guild?.tag ?? null,
 			guildRank: guildMember?.rank ?? null,
