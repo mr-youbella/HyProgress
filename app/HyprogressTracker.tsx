@@ -328,7 +328,7 @@ export default function HyprogressTracker() {
 							/>
 						</div>
 						<button
-							className="shrink-0 rounded-lg bg-emerald-400 px-5 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-300 disabled:opacity-50"
+							className="shrink-0 rounded-lg bg-emerald-400 px-5 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
 							onClick={handleSearch}
 							disabled={isLoading}
 						>
