@@ -116,73 +116,73 @@ function formatDate(timestampMs: number): string {
 function getHypixelRankColor(rank: string | null): string {
 	if (!rank)
 		return "text-stone-400";
-	
+
 	const rankUpper = rank.toUpperCase();
-	
-	if (rankUpper.includes("YOUTUBE") || rankUpper.includes("YT")) 
+
+	if (rankUpper.includes("YOUTUBE") || rankUpper.includes("YT"))
 		return "text-red-500";
-	if (rankUpper.includes("ADMIN")) 
+	if (rankUpper.includes("ADMIN"))
 		return "text-red-500";
-	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD")) 
+	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD"))
 		return "text-emerald-400";
-	if (rankUpper.includes("HELPER")) 
+	if (rankUpper.includes("HELPER"))
 		return "text-blue-400";
-	
-	if (rankUpper.includes("SUPERSTAR") || rankUpper.includes("MVP++")) 
+
+	if (rankUpper.includes("SUPERSTAR") || rankUpper.includes("MVP++"))
 		return "text-amber-400";
-	
-	if (rankUpper === "MVP_PLUS" || rankUpper.includes("MVP+")) 
+
+	if (rankUpper === "MVP_PLUS" || rankUpper.includes("MVP+"))
 		return "text-cyan-400";
-	
-	if (rankUpper === "MVP" || rankUpper.includes("MVP")) 
+
+	if (rankUpper === "MVP" || rankUpper.includes("MVP"))
 		return "text-cyan-300";
-	
-	if (rankUpper === "VIP_PLUS" || rankUpper.includes("VIP+")) 
+
+	if (rankUpper === "VIP_PLUS" || rankUpper.includes("VIP+"))
 		return "text-emerald-300";
-	
-	if (rankUpper === "VIP" || rankUpper.includes("VIP")) 
+
+	if (rankUpper === "VIP" || rankUpper.includes("VIP"))
 		return "text-emerald-500";
-	
+
 	return "text-stone-400";
 }
 
 function getRankPrefix(rank: string | null): string {
 	if (!rank)
 		return "";
-	
+
 	const rankUpper = rank.toUpperCase();
-	
-	if (rankUpper.includes("YOUTUBE")) 
+
+	if (rankUpper.includes("YOUTUBE"))
 		return "[YOUTUBE] ";
-	if (rankUpper.includes("ADMIN")) 
+	if (rankUpper.includes("ADMIN"))
 		return "[ADMIN] ";
-	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD")) 
+	if (rankUpper.includes("MODERATOR") || rankUpper.includes("MOD"))
 		return "[MOD] ";
-	if (rankUpper.includes("HELPER")) 
+	if (rankUpper.includes("HELPER"))
 		return "[HELPER] ";
-	
-	if (rankUpper.includes("SUPERSTAR")) 
+
+	if (rankUpper.includes("SUPERSTAR"))
 		return "[MVP++] ";
-	if (rankUpper === "MVP_PLUS") 
+	if (rankUpper === "MVP_PLUS")
 		return "[MVP+] ";
-	if (rankUpper === "MVP") 
+	if (rankUpper === "MVP")
 		return "[MVP] ";
-	if (rankUpper === "VIP_PLUS") 
+	if (rankUpper === "VIP_PLUS")
 		return "[VIP+] ";
-	if (rankUpper === "VIP") 
+	if (rankUpper === "VIP")
 		return "[VIP] ";
-	
-	if (rankUpper.includes("MVP++")) 
+
+	if (rankUpper.includes("MVP++"))
 		return "[MVP++] ";
-	if (rankUpper.includes("MVP+")) 
+	if (rankUpper.includes("MVP+"))
 		return "[MVP+] ";
-	if (rankUpper.includes("MVP")) 
+	if (rankUpper.includes("MVP"))
 		return "[MVP] ";
-	if (rankUpper.includes("VIP+")) 
+	if (rankUpper.includes("VIP+"))
 		return "[VIP+] ";
-	if (rankUpper.includes("VIP")) 
+	if (rankUpper.includes("VIP"))
 		return "[VIP] ";
-	
+
 	return "";
 }
 
@@ -217,11 +217,40 @@ function buildStatRows(player: PlayerData): StatTile[][] {
 	];
 }
 
+function toPlayerData(data: Record<string, unknown>): PlayerData {
+	return {
+		username: String(data.username),
+		skinUrl: String(data.skinUrl),
+		totalXp: Number(data.xp),
+		online: Boolean(data.online),
+		gameType: typeof data.gameType === "string" ? data.gameType : null,
+		mode: typeof data.mode === "string" ? data.mode : null,
+		lastLogin: typeof data.lastLogin === "number" ? data.lastLogin : null,
+		firstLogin: typeof data.firstLogin === "number" ? data.firstLogin : null,
+		guildName: typeof data.guildName === "string" ? data.guildName : null,
+		guildTag: typeof data.guildTag === "string" ? data.guildTag : null,
+		guildRank: typeof data.guildRank === "string" ? data.guildRank : null,
+		hypixelRank: typeof data.hypixelRank === "string" ? data.hypixelRank : null,
+		wins: Number(data.wins ?? 0),
+		losses: Number(data.losses ?? 0),
+		kills: Number(data.kills ?? 0),
+		deaths: Number(data.deaths ?? 0),
+		finalKills: Number(data.finalKills ?? 0),
+		finalDeaths: Number(data.finalDeaths ?? 0),
+		bedsBroken: Number(data.bedsBroken ?? 0),
+		bedsLost: Number(data.bedsLost ?? 0)
+	};
+}
+
 export default function HyprogressTracker() {
 	const [searchInput, setSearchInput] = useState("");
 	const [player, setPlayer] = useState<PlayerData | null>(null);
+	const [friendInput, setFriendInput] = useState("");
+	const [friend, setFriend] = useState<PlayerData | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isFriendLoading, setIsFriendLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [friendError, setFriendError] = useState<string | null>(null);
 
 	async function handleSearch() {
 		const username = searchInput.trim();
@@ -243,28 +272,7 @@ export default function HyprogressTracker() {
 			if (typeof data.xp !== "number" || !data.username)
 				throw new Error("Hypixel returned unexpected data for that player.");
 
-			setPlayer({
-				username: data.username,
-				skinUrl: data.skinUrl,
-				totalXp: data.xp,
-				online: Boolean(data.online),
-				gameType: data.gameType ?? null,
-				mode: data.mode ?? null,
-				lastLogin: data.lastLogin ?? null,
-				firstLogin: data.firstLogin ?? null,
-				guildName: data.guildName ?? null,
-				guildTag: data.guildTag ?? null,
-				guildRank: data.guildRank ?? null,
-				hypixelRank: data.hypixelRank ?? null,
-				wins: data.wins ?? 0,
-				losses: data.losses ?? 0,
-				kills: data.kills ?? 0,
-				deaths: data.deaths ?? 0,
-				finalKills: data.finalKills ?? 0,
-				finalDeaths: data.finalDeaths ?? 0,
-				bedsBroken: data.bedsBroken ?? 0,
-				bedsLost: data.bedsLost ?? 0
-			});
+			setPlayer(toPlayerData(data));
 		}
 		catch (error) {
 			console.error("Player search error:", error);
@@ -272,6 +280,37 @@ export default function HyprogressTracker() {
 		}
 		finally {
 			setIsLoading(false);
+		}
+	}
+
+	async function handleFriendSearch() {
+		const username = friendInput.trim();
+
+		if (!username || isFriendLoading)
+			return;
+
+		setIsFriendLoading(true);
+		setFriend(null);
+		setFriendError(null);
+
+		try {
+			const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
+			const data = await response.json();
+
+			if (!response.ok)
+				throw new Error(data.error || "Couldn't find that player. Check the spelling and try again.");
+
+			if (typeof data.xp !== "number" || !data.username)
+				throw new Error("Hypixel returned unexpected data for that player.");
+
+			setFriend(toPlayerData(data));
+		}
+		catch (error) {
+			console.error("Friend search error:", error);
+			setFriendError(error instanceof Error ? error.message : "Something went wrong. Try again in a moment.");
+		}
+		finally {
+			setIsFriendLoading(false);
 		}
 	}
 
@@ -283,6 +322,13 @@ export default function HyprogressTracker() {
 	const sourceCounts = player ? calculateSourceCounts(xpRemaining) : [];
 	const tier = getPrestigeTier(currentLevel);
 	const statRows = player ? buildStatRows(player) : [];
+	const comparisonRows = player && friend ? [
+		{ label: "Level", you: calculateCurrentLevel(player.totalXp), friend: calculateCurrentLevel(friend.totalXp) },
+		{ label: "WLR", you: formatRatio(player.wins, player.losses), friend: formatRatio(friend.wins, friend.losses) },
+		{ label: "FKDR", you: formatRatio(player.finalKills, player.finalDeaths), friend: formatRatio(friend.finalKills, friend.finalDeaths) },
+		{ label: "KDR", you: formatRatio(player.kills, player.deaths), friend: formatRatio(friend.kills, friend.deaths) },
+		{ label: "BBLR", you: formatRatio(player.bedsBroken, player.bedsLost), friend: formatRatio(friend.bedsBroken, friend.bedsLost) }
+	] : [];
 
 	const groupedSources = CATEGORY_ORDER.map((categoryId) => {
 		return {
@@ -343,6 +389,42 @@ export default function HyprogressTracker() {
 
 				{player && (
 					<section className="pt-12">
+						<div className="mb-6 rounded-xl border border-white/10 bg-white/2 p-4">
+							<div className="mb-3 flex items-center justify-between gap-3">
+								<div>
+									<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">YOU VS A FRIEND</h2>
+									<p className="mt-1 text-[11px] text-stone-500">Compare Bedwars progress with another player.</p>
+								</div>
+								{friend && <button className="text-[11px] text-stone-500 hover:text-stone-300 cursor-pointer" onClick={() => setFriend(null)}>Clear</button>}
+							</div>
+							<div className="flex items-stretch gap-2">
+								<input
+									className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#101014] px-3 py-2.5 font-mono text-sm text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
+									placeholder="Friend's Minecraft name"
+									value={friendInput}
+									onChange={(event) => setFriendInput(event.target.value)}
+									onKeyDown={(event) => { if (event.key === "Enter") handleFriendSearch(); }}
+								/>
+								<button className="shrink-0 rounded-lg border border-emerald-400/40 px-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/10 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed" onClick={handleFriendSearch} disabled={isFriendLoading}>
+									{isFriendLoading ? "Loading" : "Compare"}
+								</button>
+							</div>
+							{friendError && <p className="mt-3 text-[12px] text-rose-400">{friendError}</p>}
+							{friend && (
+								<div className="mt-4 overflow-hidden rounded-lg border border-white/10">
+									<div className="grid grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)] items-center gap-3 border-b border-white/10 bg-white/3 px-5 py-2.5 text-xs font-semibold">
+										<span className="truncate text-left text-emerald-300">{player.username}</span><span className="text-center text-stone-600">VS</span><span className="truncate text-right text-sky-300">{friend.username}</span>
+									</div>
+									{comparisonRows.map((row) => (
+										<div key={row.label} className="grid grid-cols-[minmax(0,1fr)_5rem_minmax(0,1fr)] items-center gap-3 border-b border-white/5 px-5 py-3 last:border-b-0 font-mono text-sm tabular-nums">
+											<span className={`text-left ${row.you > row.friend ? "text-emerald-400" : row.you < row.friend ? "text-stone-500" : "text-stone-200"}`}>{row.you.toLocaleString()}</span>
+											<span className="text-center text-[10px] tracking-wider text-stone-600">{row.label.toUpperCase()}</span>
+											<span className={`text-right ${row.friend > row.you ? "text-sky-300" : row.friend < row.you ? "text-stone-500" : "text-stone-200"}`}>{row.friend.toLocaleString()}</span>
+										</div>
+									))}
+								</div>
+							)}
+						</div>
 						<div className="rounded-2xl bg-linear-to-brom-white/[0.06] to-white/0 p-px">
 							<div className="rounded-[15px] bg-[#101014] px-6 py-7 sm:px-8">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
