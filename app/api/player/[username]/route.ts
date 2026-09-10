@@ -90,7 +90,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			finalKills: bedwars.final_kills_bedwars ?? 0,
 			finalDeaths: bedwars.final_deaths_bedwars ?? 0,
 			bedsBroken: bedwars.beds_broken_bedwars ?? 0,
-			bedsLost: bedwars.beds_lost_bedwars ?? 0
+			bedsLost: bedwars.beds_lost_bedwars ?? 0,
+			meleeKills: bedwars.entity_attack_kills_bedwars ?? 0,
+			voidKills: bedwars.void_kills_bedwars ?? 0,
+			fallKills: bedwars.fall_kills_bedwars ?? 0,
+			explosionKills: bedwars.entity_explosion_kills_bedwars ?? 0,
+			magicKills: bedwars.magic_kills_bedwars ?? 0,
+			fireKills: bedwars.fire_tick_kills_bedwars ?? 0,
+			projectileKills: bedwars.projectile_kills_bedwars ?? 0
 		});
 	}
 	catch (error) {

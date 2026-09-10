@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
@@ -24,6 +24,13 @@ type PlayerData = {
 	finalDeaths: number;
 	bedsBroken: number;
 	bedsLost: number;
+	meleeKills: number;
+	voidKills: number;
+	fallKills: number;
+	explosionKills: number;
+	magicKills: number;
+	fireKills: number;
+	projectileKills: number;
 };
 
 type CategoryId = "wins" | "combat" | "resources" | "time";
@@ -238,12 +245,32 @@ function toPlayerData(data: Record<string, unknown>): PlayerData {
 		finalKills: Number(data.finalKills ?? 0),
 		finalDeaths: Number(data.finalDeaths ?? 0),
 		bedsBroken: Number(data.bedsBroken ?? 0),
-		bedsLost: Number(data.bedsLost ?? 0)
+		bedsLost: Number(data.bedsLost ?? 0),
+		meleeKills: Number(data.meleeKills ?? 0),
+		voidKills: Number(data.voidKills ?? 0),
+		fallKills: Number(data.fallKills ?? 0),
+		explosionKills: Number(data.explosionKills ?? 0),
+		magicKills: Number(data.magicKills ?? 0),
+		fireKills: Number(data.fireKills ?? 0),
+		projectileKills: Number(data.projectileKills ?? 0)
 	};
 }
 
-export default function HyprogressTracker() {
-	const [searchInput, setSearchInput] = useState("");
+async function fetchPlayerData(username: string): Promise<PlayerData> {
+	const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
+	const data = await response.json();
+
+	if (!response.ok)
+		throw new Error(data.error || "Couldn't find that player. Check the spelling and try again.");
+
+	if (typeof data.xp !== "number" || !data.username)
+		throw new Error("Hypixel returned unexpected data for that player.");
+
+	return toPlayerData(data);
+}
+
+export default function HyprogressTracker({ initialUsername }: { initialUsername?: string }) {
+	const [searchInput, setSearchInput] = useState(initialUsername ?? "");
 	const [player, setPlayer] = useState<PlayerData | null>(null);
 	const [friendInput, setFriendInput] = useState("");
 	const [friend, setFriend] = useState<PlayerData | null>(null);
@@ -251,6 +278,38 @@ export default function HyprogressTracker() {
 	const [isFriendLoading, setIsFriendLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [friendError, setFriendError] = useState<string | null>(null);
+	const [isCopied, setIsCopied] = useState(false);
+
+	useEffect(() => {
+		if (!initialUsername)
+			return;
+
+		const username = initialUsername;
+		let isCancelled = false;
+
+		async function loadPlayer() {
+			setIsLoading(true);
+			setPlayer(null);
+			setError(null);
+
+			try {
+				const result = await fetchPlayerData(username);
+				if (!isCancelled)
+					setPlayer(result);
+			}
+			catch (error) {
+				if (!isCancelled)
+					setError(error instanceof Error ? error.message : "Something went wrong. Try again in a moment.");
+			}
+			finally {
+				if (!isCancelled)
+					setIsLoading(false);
+			}
+		}
+
+		void loadPlayer();
+		return () => { isCancelled = true; };
+	}, [initialUsername]);
 
 	async function handleSearch() {
 		const username = searchInput.trim();
@@ -263,16 +322,9 @@ export default function HyprogressTracker() {
 		setError(null);
 
 		try {
-			const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
-			const data = await response.json();
-
-			if (!response.ok)
-				throw new Error(data.error || "Couldn't find that player. Check the spelling and try again.");
-
-			if (typeof data.xp !== "number" || !data.username)
-				throw new Error("Hypixel returned unexpected data for that player.");
-
-			setPlayer(toPlayerData(data));
+			const result = await fetchPlayerData(username);
+			setPlayer(result);
+			window.history.pushState({}, "", `/${encodeURIComponent(result.username)}`);
 		}
 		catch (error) {
 			console.error("Player search error:", error);
@@ -280,6 +332,20 @@ export default function HyprogressTracker() {
 		}
 		finally {
 			setIsLoading(false);
+		}
+	}
+
+	async function handleShare() {
+		if (!player)
+			return;
+
+		try {
+			await navigator.clipboard.writeText(`${window.location.origin}/${encodeURIComponent(player.username)}`);
+			setIsCopied(true);
+			window.setTimeout(() => setIsCopied(false), 2_000);
+		}
+		catch {
+			setError("Couldn't copy the player link. Please copy it from the address bar.");
 		}
 	}
 
@@ -322,6 +388,15 @@ export default function HyprogressTracker() {
 	const sourceCounts = player ? calculateSourceCounts(xpRemaining) : [];
 	const tier = getPrestigeTier(currentLevel);
 	const statRows = player ? buildStatRows(player) : [];
+	const killMethods = player ? [
+		{ label: "Melee", value: player.meleeKills, className: "text-rose-300" },
+		{ label: "Void", value: player.voidKills, className: "text-violet-300" },
+		{ label: "Fall", value: player.fallKills, className: "text-amber-300" },
+		{ label: "Explosion", value: player.explosionKills, className: "text-orange-300" },
+		{ label: "Magic", value: player.magicKills, className: "text-sky-300" },
+		{ label: "Fire", value: player.fireKills, className: "text-red-400" },
+		{ label: "Projectile", value: player.projectileKills, className: "text-cyan-300" }
+	].filter((method) => method.value > 0).sort((a, b) => b.value - a.value) : [];
 	const comparisonRows = player && friend ? [
 		{ label: "Level", you: calculateCurrentLevel(player.totalXp), friend: calculateCurrentLevel(friend.totalXp) },
 		{ label: "WLR", you: formatRatio(player.wins, player.losses), friend: formatRatio(friend.wins, friend.losses) },
@@ -478,8 +553,16 @@ export default function HyprogressTracker() {
 											</p>
 										</div>
 									</div>
-									<div className="font-mono text-sm text-stone-500">
-										{player.totalXp.toLocaleString()} XP total
+									<div className="flex items-center gap-4">
+										<button
+											className="rounded-md border border-white/10 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300 cursor-pointer"
+											onClick={handleShare}
+										>
+											{isCopied ? "LINK COPIED" : "SHARE"}
+										</button>
+										<span className="font-mono text-sm text-stone-500">
+											{player.totalXp.toLocaleString()} XP total
+										</span>
 									</div>
 								</div>
 
@@ -508,6 +591,22 @@ export default function HyprogressTracker() {
 										</div>
 									))}
 								</div>
+
+								<div className="mt-6 rounded-lg border border-white/10 bg-white/2 p-4">
+										<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">KILL STYLE</h2>
+										<p className="mt-1 text-[10px] text-stone-600">How this player gets eliminations.</p>
+										{killMethods.length > 0 ? (
+											<div className="mt-3 space-y-2">
+
+												{killMethods.slice(0, 4).map((method, index) => (
+													<div key={method.label} className="flex items-center justify-between gap-3">
+														<span className="text-xs text-stone-400"><span className="mr-2 font-mono text-stone-600">#{index + 1}</span>{method.label}</span>
+														<span className={`font-mono text-sm font-bold tabular-nums ${method.className}`}>{method.value.toLocaleString()}</span>
+													</div>
+												))}
+											</div>
+										) : <p className="mt-3 text-sm text-stone-500">No kill-method data available.</p>}
+									</div>
 
 								<div className="relative my-7">
 									<div className="absolute -left-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0B0B0F] sm:-left-11" />
