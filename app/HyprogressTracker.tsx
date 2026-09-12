@@ -389,13 +389,13 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 	const tier = getPrestigeTier(currentLevel);
 	const statRows = player ? buildStatRows(player) : [];
 	const killMethods = player ? [
-		{ label: "Melee", value: player.meleeKills, className: "text-rose-300" },
-		{ label: "Void", value: player.voidKills, className: "text-violet-300" },
-		{ label: "Fall", value: player.fallKills, className: "text-amber-300" },
-		{ label: "Explosion", value: player.explosionKills, className: "text-orange-300" },
-		{ label: "Magic", value: player.magicKills, className: "text-sky-300" },
-		{ label: "Fire", value: player.fireKills, className: "text-red-400" },
-		{ label: "Projectile", value: player.projectileKills, className: "text-cyan-300" }
+		{ label: "Melee", description: "Direct close-range attacks, usually with a sword.", value: player.meleeKills, className: "text-rose-300" },
+		{ label: "Void", description: "Enemies knocked into the void.", value: player.voidKills, className: "text-violet-300" },
+		{ label: "Fall", description: "Enemies killed by fall damage.", value: player.fallKills, className: "text-amber-300" },
+		{ label: "Explosion", description: "Kills caused by explosions, such as TNT or fireballs.", value: player.explosionKills, className: "text-orange-300" },
+		{ label: "Magic", description: "Kills caused by special magic damage.", value: player.magicKills, className: "text-sky-300" },
+		{ label: "Fire", description: "Kills caused by fire damage.", value: player.fireKills, className: "text-red-400" },
+		{ label: "Projectile", description: "Kills caused by projectiles, such as arrows.", value: player.projectileKills, className: "text-cyan-300" }
 	].filter((method) => method.value > 0).sort((a, b) => b.value - a.value) : [];
 	const comparisonRows = player && friend ? [
 		{ label: "Level", you: calculateCurrentLevel(player.totalXp), friend: calculateCurrentLevel(friend.totalXp) },
@@ -600,7 +600,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 
 												{killMethods.slice(0, 4).map((method, index) => (
 													<div key={method.label} className="flex items-center justify-between gap-3">
-														<span className="text-xs text-stone-400"><span className="mr-2 font-mono text-stone-600">#{index + 1}</span>{method.label}</span>
+														<span className="cursor-help text-xs text-stone-400 decoration-dotted underline-offset-4 hover:text-stone-200" title={method.description}><span className="mr-2 font-mono text-stone-600">#{index + 1}</span>{method.label}</span>
 														<span className={`font-mono text-sm font-bold tabular-nums ${method.className}`}>{method.value.toLocaleString()}</span>
 													</div>
 												))}
