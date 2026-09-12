@@ -586,7 +586,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 								<div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-white/10">
 									{statRows.flat().map((tile, index) => (
 										<div key={index} className="bg-[#101014] px-3 py-4 text-center">
-											<p className="mb-1.5 text-[10px] tracking-widest text-stone-500">{tile.label.toUpperCase()}</p>
+											<p className="mb-1.5 whitespace-nowrap text-[8px] tracking-[0.08em] text-stone-500 sm:text-[10px] sm:tracking-widest">{tile.label.toUpperCase()}</p>
 											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
 										</div>
 									))}
