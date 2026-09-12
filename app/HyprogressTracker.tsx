@@ -503,7 +503,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 						<div className="rounded-2xl bg-linear-to-brom-white/[0.06] to-white/0 p-px">
 							<div className="rounded-[15px] bg-[#101014] px-6 py-7 sm:px-8">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-									<div className="flex items-center gap-4">
+									<div className={`flex items-center gap-4 ${currentLevel >= 100 ? "max-sm:flex-wrap" : ""}`}>
 										<Image
 											src={player.skinUrl}
 											alt={`${player.username}'s skin`}
@@ -514,7 +514,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 										<span className={`font-mono text-5xl font-bold tabular-nums ${tier.textClass}`}>
 											{currentLevel}
 										</span>
-										<div>
+										<div className={currentLevel >= 100 ? "max-sm:w-full max-sm:pt-1" : ""}>
 											<div className="mb-1 flex items-center gap-2">
 												<span className={`h-1.5 w-1.5 rounded-full ${player.online ? "bg-emerald-400" : "bg-stone-600"}`} />
 												<span className="text-[10px] tracking-[0.14em] text-stone-500">
