@@ -474,7 +474,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 							</div>
 							<div className="flex items-stretch gap-2">
 								<input
-									className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#101014] px-3 py-2.5 font-mono text-sm text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
+									className="min-w-0 flex-1 rounded-lg border border-white/10 bg-[#101014] px-3 py-2.5 font-mono text-[16px] text-stone-100 placeholder:text-stone-600 focus:border-emerald-400/60 focus:outline-none"
 									placeholder="Friend's Minecraft name"
 									value={friendInput}
 									onChange={(event) => setFriendInput(event.target.value)}
