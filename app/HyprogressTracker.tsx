@@ -3,6 +3,19 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
+type ModeStats = {
+	id: string;
+	label: string;
+	wins: number;
+	losses: number;
+	kills: number;
+	deaths: number;
+	finalKills: number;
+	finalDeaths: number;
+	bedsBroken: number;
+	bedsLost: number;
+};
+
 type PlayerData = {
 	username: string;
 	skinUrl: string;
@@ -24,6 +37,7 @@ type PlayerData = {
 	finalDeaths: number;
 	bedsBroken: number;
 	bedsLost: number;
+	modeStats: ModeStats[];
 	meleeKills: number;
 	voidKills: number;
 	fallKills: number;
@@ -246,6 +260,21 @@ function toPlayerData(data: Record<string, unknown>): PlayerData {
 		finalDeaths: Number(data.finalDeaths ?? 0),
 		bedsBroken: Number(data.bedsBroken ?? 0),
 		bedsLost: Number(data.bedsLost ?? 0),
+		modeStats: Array.isArray(data.modeStats) ? data.modeStats.map((mode) => {
+			const stats = mode as Record<string, unknown>;
+			return {
+				id: String(stats.id),
+				label: String(stats.label),
+				wins: Number(stats.wins ?? 0),
+				losses: Number(stats.losses ?? 0),
+				kills: Number(stats.kills ?? 0),
+				deaths: Number(stats.deaths ?? 0),
+				finalKills: Number(stats.finalKills ?? 0),
+				finalDeaths: Number(stats.finalDeaths ?? 0),
+				bedsBroken: Number(stats.bedsBroken ?? 0),
+				bedsLost: Number(stats.bedsLost ?? 0)
+			};
+		}) : [],
 		meleeKills: Number(data.meleeKills ?? 0),
 		voidKills: Number(data.voidKills ?? 0),
 		fallKills: Number(data.fallKills ?? 0),
@@ -279,6 +308,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 	const [error, setError] = useState<string | null>(null);
 	const [friendError, setFriendError] = useState<string | null>(null);
 	const [isCopied, setIsCopied] = useState(false);
+	const [selectedModeId, setSelectedModeId] = useState("solo");
 
 	useEffect(() => {
 		if (!initialUsername)
@@ -397,6 +427,21 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 		{ label: "Fire", description: "Kills caused by fire damage.", value: player.fireKills, className: "text-red-400" },
 		{ label: "Projectile", description: "Kills caused by projectiles, such as arrows.", value: player.projectileKills, className: "text-cyan-300" }
 	].filter((method) => method.value > 0).sort((a, b) => b.value - a.value) : [];
+	const selectedMode = player?.modeStats.find((mode) => mode.id === selectedModeId) ?? player?.modeStats[0];
+	const selectedModeTiles = selectedMode ? [
+		{ label: "Wins", value: selectedMode.wins.toLocaleString(), className: "text-emerald-400" },
+		{ label: "Losses", value: selectedMode.losses.toLocaleString(), className: "text-rose-400" },
+		{ label: "WLR", value: formatRatio(selectedMode.wins, selectedMode.losses), className: "text-amber-400" },
+		{ label: "Kills", value: selectedMode.kills.toLocaleString(), className: "text-emerald-400" },
+		{ label: "Deaths", value: selectedMode.deaths.toLocaleString(), className: "text-rose-400" },
+		{ label: "KDR", value: formatRatio(selectedMode.kills, selectedMode.deaths), className: "text-amber-400" },
+		{ label: "Final Kills", value: selectedMode.finalKills.toLocaleString(), className: "text-emerald-400" },
+		{ label: "Final Deaths", value: selectedMode.finalDeaths.toLocaleString(), className: "text-rose-400" },
+		{ label: "FKDR", value: formatRatio(selectedMode.finalKills, selectedMode.finalDeaths), className: "text-amber-400" },
+		{ label: "Beds Broken", value: selectedMode.bedsBroken.toLocaleString(), className: "text-emerald-400" },
+		{ label: "Beds Lost", value: selectedMode.bedsLost.toLocaleString(), className: "text-rose-400" },
+		{ label: "BBLR", value: formatRatio(selectedMode.bedsBroken, selectedMode.bedsLost), className: "text-amber-400" }
+	] : [];
 	const comparisonRows = player && friend ? [
 		{ label: "Level", you: calculateCurrentLevel(player.totalXp), friend: calculateCurrentLevel(friend.totalXp) },
 		{ label: "WLR", you: formatRatio(player.wins, player.losses), friend: formatRatio(friend.wins, friend.losses) },
@@ -590,6 +635,37 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
 										</div>
 									))}
+								</div>
+
+								<div className="mt-6">
+									<div className="mb-3 flex items-baseline justify-between gap-3">
+										<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">GAME MODE BREAKDOWN</h2>
+										<span className="text-[10px] text-stone-600">Lifetime stats by mode</span>
+									</div>
+									<div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+										{player.modeStats.map((mode) => (
+											<button
+												key={mode.id}
+												className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedMode?.id === mode.id ? "border-emerald-400 bg-emerald-400 text-emerald-950" : "border-white/10 text-stone-400 hover:border-white/25 hover:text-stone-200"}`}
+												onClick={() => setSelectedModeId(mode.id)}
+											>
+												{mode.label}
+											</button>
+										))}
+									</div>
+									{selectedMode && (
+										<div className="overflow-hidden rounded-lg border border-white/10 bg-white/2">
+											<h3 className="border-b border-white/10 px-3 py-2.5 text-xs font-semibold tracking-[0.08em] text-stone-200">{selectedMode.label}</h3>
+											<div className="grid grid-cols-3 gap-px bg-white/10">
+												{selectedModeTiles.map((tile) => (
+													<div key={tile.label} className="bg-[#101014] px-1 py-2.5 text-center">
+														<p className="whitespace-nowrap text-[7px] tracking-[0.06em] text-stone-600">{tile.label.toUpperCase()}</p>
+														<p className={`mt-1 font-mono text-xs font-bold tabular-nums ${tile.className}`}>{tile.value}</p>
+													</div>
+												))}
+											</div>
+										</div>
+									)}
 								</div>
 
 								<div className="mt-6 rounded-lg border border-white/10 bg-white/2 p-4">

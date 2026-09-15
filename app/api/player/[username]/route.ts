@@ -70,6 +70,25 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 				hypixelRank = player.packageRank;
 		}
 
+		const modeStats = [
+			{ id: "solo", label: "Solo", prefix: "eight_one" },
+			{ id: "doubles", label: "Doubles", prefix: "eight_two" },
+			{ id: "threes", label: "3v3v3v3", prefix: "four_three" },
+			{ id: "fours", label: "4v4v4v4", prefix: "four_four" },
+			{ id: "fourVFour", label: "4v4", prefix: "two_four" }
+		].map(({ id, label, prefix }) => ({
+			id,
+			label,
+			wins: bedwars[`${prefix}_wins_bedwars`] ?? 0,
+			losses: bedwars[`${prefix}_losses_bedwars`] ?? 0,
+			kills: bedwars[`${prefix}_kills_bedwars`] ?? 0,
+			deaths: bedwars[`${prefix}_deaths_bedwars`] ?? 0,
+			finalKills: bedwars[`${prefix}_final_kills_bedwars`] ?? 0,
+			finalDeaths: bedwars[`${prefix}_final_deaths_bedwars`] ?? 0,
+			bedsBroken: bedwars[`${prefix}_beds_broken_bedwars`] ?? 0,
+			bedsLost: bedwars[`${prefix}_beds_lost_bedwars`] ?? 0
+		}));
+
 		return NextResponse.json({
 			username: mojangData.name,
 			skinUrl: `https://statsify.net/api/skin/head?uuid=${mojangData.id}&size=32`,
@@ -91,6 +110,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			finalDeaths: bedwars.final_deaths_bedwars ?? 0,
 			bedsBroken: bedwars.beds_broken_bedwars ?? 0,
 			bedsLost: bedwars.beds_lost_bedwars ?? 0,
+			modeStats,
 			meleeKills: bedwars.entity_attack_kills_bedwars ?? 0,
 			voidKills: bedwars.void_kills_bedwars ?? 0,
 			fallKills: bedwars.fall_kills_bedwars ?? 0,
