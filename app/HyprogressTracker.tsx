@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { ArrowDown, ArrowUp } from 'lucide-react';
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
 type ModeStats = {
@@ -309,6 +310,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 	const [friendError, setFriendError] = useState<string | null>(null);
 	const [isCopied, setIsCopied] = useState(false);
 	const [selectedModeId, setSelectedModeId] = useState("solo");
+	const [isModeStatsOpen, setIsModeStatsOpen] = useState(false);
 
 	useEffect(() => {
 		if (!initialUsername)
@@ -638,51 +640,61 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 								</div>
 
 								<div className="mt-6">
-									<div className="mb-3 flex items-baseline justify-between gap-3">
-										<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">GAME MODE BREAKDOWN</h2>
-										<span className="text-[10px] text-stone-600">Lifetime stats by mode</span>
-									</div>
-									<div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
-										{player.modeStats.map((mode) => (
-											<button
-												key={mode.id}
-												className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedMode?.id === mode.id ? "border-emerald-400 bg-emerald-400 text-emerald-950" : "border-white/10 text-stone-400 hover:border-white/25 hover:text-stone-200"}`}
-												onClick={() => setSelectedModeId(mode.id)}
-											>
-												{mode.label}
-											</button>
-										))}
-									</div>
-									{selectedMode && (
-										<div className="overflow-hidden rounded-lg border border-white/10 bg-white/2">
-											<h3 className="border-b border-white/10 px-3 py-2.5 text-xs font-semibold tracking-[0.08em] text-stone-200">{selectedMode.label}</h3>
-											<div className="grid grid-cols-3 gap-px bg-white/10">
-												{selectedModeTiles.map((tile) => (
-													<div key={tile.label} className="bg-[#101014] px-1 py-2.5 text-center">
-														<p className="whitespace-nowrap text-[7px] tracking-[0.06em] text-stone-600">{tile.label.toUpperCase()}</p>
-														<p className={`mt-1 font-mono text-xs font-bold tabular-nums ${tile.className}`}>{tile.value}</p>
-													</div>
-												))}
-											</div>
+									<div className="mb-3 flex items-center justify-between gap-3">
+										<div>
+											<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">GAME MODE BREAKDOWN</h2>
+											<p className="mt-1 text-[10px] text-stone-600">Lifetime stats by mode & Kill style</p>
 										</div>
-									)}
-								</div>
-
-								<div className="mt-6 rounded-lg border border-white/10 bg-white/2 p-4">
-										<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">KILL STYLE</h2>
-										<p className="mt-1 text-[10px] text-stone-600">How this player gets eliminations.</p>
-										{killMethods.length > 0 ? (
-											<div className="mt-3 space-y-2">
-
-												{killMethods.slice(0, 4).map((method, index) => (
-													<div key={method.label} className="flex items-center justify-between gap-3">
-														<span className="cursor-help text-xs text-stone-400 decoration-dotted underline-offset-4 hover:text-stone-200" title={method.description}><span className="mr-2 font-mono text-stone-600">#{index + 1}</span>{method.label}</span>
-														<span className={`font-mono text-sm font-bold tabular-nums ${method.className}`}>{method.value.toLocaleString()}</span>
-													</div>
-												))}
-											</div>
-										) : <p className="mt-3 text-sm text-stone-500">No kill-method data available.</p>}
+										<button
+											className="flex items-center shrink-0 rounded-md border border-white/10 px-3 py-1.5 text-[10px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300 cursor-pointer"
+											onClick={() => setIsModeStatsOpen((isOpen) => !isOpen)}
+											aria-expanded={isModeStatsOpen}
+										>
+											{isModeStatsOpen ? <>HIDE <ArrowUp className="w-4" /></> : <>SHOW <ArrowDown className="w-4" /></>}
+										</button>
 									</div>
+									{isModeStatsOpen && <>
+										<div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
+											{player.modeStats.map((mode) => (
+												<button
+													key={mode.id}
+													className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedMode?.id === mode.id ? "border-emerald-400 bg-emerald-400 text-emerald-950" : "border-white/10 text-stone-400 hover:border-white/25 hover:text-stone-200"}`}
+													onClick={() => setSelectedModeId(mode.id)}
+												>
+													{mode.label}
+												</button>
+											))}
+										</div>
+										{selectedMode && (
+											<div className="overflow-hidden rounded-lg border border-white/10 bg-white/2">
+												<h3 className="border-b border-white/10 px-3 py-2.5 text-xs font-semibold tracking-[0.08em] text-stone-200">{selectedMode.label}</h3>
+												<div className="grid grid-cols-3 gap-px bg-white/10">
+													{selectedModeTiles.map((tile) => (
+														<div key={tile.label} className="bg-[#101014] px-1 py-2.5 text-center">
+															<p className="whitespace-nowrap text-[7px] tracking-[0.06em] text-stone-600">{tile.label.toUpperCase()}</p>
+															<p className={`mt-1 font-mono text-xs font-bold tabular-nums ${tile.className}`}>{tile.value}</p>
+														</div>
+													))}
+												</div>
+											</div>
+										)}
+										<div className="mt-6 rounded-lg border border-white/10 bg-white/2 p-4">
+											<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">KILL STYLE</h2>
+											<p className="mt-1 text-[10px] text-stone-600">How this player gets eliminations.</p>
+											{killMethods.length > 0 ? (
+												<div className="mt-3 space-y-2">
+
+													{killMethods.slice(0, 4).map((method, index) => (
+														<div key={method.label} className="flex items-center justify-between gap-3">
+															<span className="cursor-help text-xs text-stone-400 decoration-dotted underline-offset-4 hover:text-stone-200" title={method.description}><span className="mr-2 font-mono text-stone-600">#{index + 1}</span>{method.label}</span>
+															<span className={`font-mono text-sm font-bold tabular-nums ${method.className}`}>{method.value.toLocaleString()}</span>
+														</div>
+													))}
+												</div>
+											) : <p className="mt-3 text-sm text-stone-500">No kill-method data available.</p>}
+										</div>
+									</>}
+								</div>
 
 								<div className="relative my-7">
 									<div className="absolute -left-9 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#0B0B0F] sm:-left-11" />
