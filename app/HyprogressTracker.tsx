@@ -286,12 +286,26 @@ function toPlayerData(data: Record<string, unknown>): PlayerData {
 	};
 }
 
+function getPlayerError(response: Response, data: Record<string, unknown>): string {
+	if (response.status === 429) {
+		const retryAfter = Number(response.headers.get("Retry-After"));
+		if (Number.isFinite(retryAfter) && retryAfter > 0) {
+			const unit = retryAfter === 1 ? "second" : "seconds";
+			return `Too many searches. Try again in ${retryAfter} ${unit}.`;
+		}
+	}
+
+	return typeof data.error === "string"
+		? data.error
+		: "Couldn't find that player. Check the spelling and try again.";
+}
+
 async function fetchPlayerData(username: string): Promise<PlayerData> {
 	const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
-	const data = await response.json();
+	const data: Record<string, unknown> = await response.json();
 
 	if (!response.ok)
-		throw new Error(data.error || "Couldn't find that player. Check the spelling and try again.");
+		throw new Error(getPlayerError(response, data));
 
 	if (typeof data.xp !== "number" || !data.username)
 		throw new Error("Hypixel returned unexpected data for that player.");
@@ -392,16 +406,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 		setFriendError(null);
 
 		try {
-			const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
-			const data = await response.json();
-
-			if (!response.ok)
-				throw new Error(data.error || "Couldn't find that player. Check the spelling and try again.");
-
-			if (typeof data.xp !== "number" || !data.username)
-				throw new Error("Hypixel returned unexpected data for that player.");
-
-			setFriend(toPlayerData(data));
+			setFriend(await fetchPlayerData(username));
 		}
 		catch (error) {
 			console.error("Friend search error:", error);

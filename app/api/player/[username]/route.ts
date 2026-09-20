@@ -1,11 +1,28 @@
-import { NextResponse } from "next/server";
+import { recordPlayerSearch } from "@/lib/database";
+import { limitPlayerSearch } from "@/lib/rate_limit";
+import { after, NextRequest, NextResponse } from "next/server";
 
-export async function GET(_request: Request, { params }: { params: Promise<{ username: string }> }) {
+function getClientIp(request: NextRequest): string {
+	return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+		?? request.headers.get("x-real-ip")
+		?? "unknown";
+}
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ username: string }> }) {
 	try {
 		const { username } = await params;
 
 		if (!username)
 			return NextResponse.json({ error: "Username is required" }, { status: 400 });
+
+		const rateLimit = await limitPlayerSearch(getClientIp(request));
+		if (rateLimit && !rateLimit.success) {
+			const retryAfter = Math.max(1, Math.ceil((rateLimit.reset - Date.now()) / 1_000));
+			return NextResponse.json(
+				{ error: "Too many searches. Please try again shortly." },
+				{ status: 429, headers: { "Retry-After": String(retryAfter) } }
+			);
+		}
 
 		const apiKey = process.env.HYPIXEL_API_KEY;
 
@@ -14,7 +31,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 
 		const mojangResponse = await fetch(
 			`https://api.mojang.com/users/profiles/minecraft/${encodeURIComponent(username)}`,
-			{ next: { revalidate: 300 } }
+			{ next: { revalidate: 300 }, signal: AbortSignal.timeout(8_000) }
 		);
 
 		if (!mojangResponse.ok)
@@ -25,15 +42,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 		const [playerResponse, statusResponse, guildResponse] = await Promise.all([
 			fetch(`https://api.hypixel.net/v2/player?uuid=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				next: { revalidate: 30 }
+				next: { revalidate: 30 },
+				signal: AbortSignal.timeout(8_000)
 			}),
 			fetch(`https://api.hypixel.net/v2/status?uuid=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				next: { revalidate: 30 }
+				next: { revalidate: 30 },
+				signal: AbortSignal.timeout(8_000)
 			}),
 			fetch(`https://api.hypixel.net/v2/guild?player=${mojangData.id}`, {
 				headers: { "API-Key": apiKey },
-				next: { revalidate: 30 }
+				next: { revalidate: 30 },
+				signal: AbortSignal.timeout(8_000)
 			})
 		]);
 
@@ -58,7 +78,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 
 		const player = hypixelData.player;
 		let hypixelRank = null;
-		
+
 		if (player) {
 			if (player.rank)
 				hypixelRank = player.rank;
@@ -88,6 +108,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ use
 			bedsBroken: bedwars[`${prefix}_beds_broken_bedwars`] ?? 0,
 			bedsLost: bedwars[`${prefix}_beds_lost_bedwars`] ?? 0
 		}));
+
+		after(() => recordPlayerSearch(mojangData.name));
 
 		return NextResponse.json({
 			username: mojangData.name,
