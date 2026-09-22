@@ -4,7 +4,7 @@ import { ArrowLeft, SearchX } from "lucide-react";
 export default function NotFound() {
 	return (
 		<main className="flex min-h-screen items-center bg-[#0B0B0F] px-5 py-10 text-stone-100 sm:px-8">
-			<section className="mx-auto w-full max-w-lg rounded-2xl border border-white/10 bg-white/[0.03] p-7 text-center shadow-2xl shadow-black/20 sm:p-10">
+			<section className="mx-auto w-full max-w-lg rounded-2xl border border-white/10 bg-white/3 p-7 text-center shadow-2xl shadow-black/20 sm:p-10">
 				<div className="mx-auto flex size-12 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-400/10 text-emerald-300">
 					<SearchX aria-hidden="true" className="size-6" />
 				</div>
