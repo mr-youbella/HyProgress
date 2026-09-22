@@ -370,7 +370,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 		try {
 			const result = await fetchPlayerData(username);
 			setPlayer(result);
-			window.history.pushState({}, "", `/${encodeURIComponent(result.username)}`);
+			window.history.pushState({}, "", `/player/${encodeURIComponent(result.username)}`);
 		}
 		catch (error) {
 			console.error("Player search error:", error);
@@ -386,7 +386,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 			return;
 
 		try {
-			await navigator.clipboard.writeText(`${window.location.origin}/${encodeURIComponent(player.username)}`);
+			await navigator.clipboard.writeText(`${window.location.origin}/player/${encodeURIComponent(player.username)}`);
 			setIsCopied(true);
 			window.setTimeout(() => setIsCopied(false), 2_000);
 		}

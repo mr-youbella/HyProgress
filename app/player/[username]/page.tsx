@@ -1,4 +1,4 @@
-import HyprogressTracker from "../HyprogressTracker";
+import HyprogressTracker from "../../HyprogressTracker";
 
 export default async function PlayerPage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;
