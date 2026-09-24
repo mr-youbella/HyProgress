@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { ADMIN_SESSION_COOKIE, createAdminSessionToken } from "@/lib/admin_auth";
 
 function unauthorized(): NextResponse {
 	return new NextResponse("Admin authentication required.", {
@@ -15,7 +16,7 @@ function matchesSecret(value: string, expected: string): boolean {
 	return valueBuffer.length === expectedBuffer.length && timingSafeEqual(valueBuffer, expectedBuffer);
 }
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
 	const username = process.env.ADMIN_USERNAME;
 	const password = process.env.ADMIN_PASSWORD;
 	const authorization = request.headers.get("authorization");
@@ -36,7 +37,20 @@ export function proxy(request: NextRequest) {
 		return unauthorized();
 	}
 
-	return NextResponse.next();
+	const response = NextResponse.next();
+	const sessionToken = await createAdminSessionToken();
+
+	if (sessionToken) {
+		response.cookies.set(ADMIN_SESSION_COOKIE, sessionToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "lax",
+			path: "/",
+			maxAge: 60 * 60
+		});
+	}
+
+	return response;
 }
 
 export const config = { matcher: ["/admin/:path*"] };

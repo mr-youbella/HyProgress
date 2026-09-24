@@ -131,6 +131,9 @@ UPSTASH_REDIS_REST_TOKEN=your_token
 # Credentials for /admin.
 ADMIN_USERNAME=choose_a_private_username
 ADMIN_PASSWORD=choose_a_long_unique_password
+
+# A long random secret used to sign the short-lived Admin preview JWT.
+ADMIN_SESSION_SECRET=use_a_long_random_value
 ```
 
 Do not prefix these variables with `NEXT_PUBLIC_`. That would expose them to browser JavaScript.
@@ -185,4 +188,6 @@ The cache reduces repeated upstream requests, but it does not replace rate limit
 - Use a long, unique `ADMIN_PASSWORD` and rotate it if it is ever exposed.
 - Do not trust client input; the API validates the Minecraft username and uses parameterized SQL.
 - Do not expose the admin page publicly without setting `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
+- Set `ADMIN_SESSION_SECRET` in every environment so opening a player from Admin does not create a duplicate analytics row.
+- The Admin preview session is a short-lived HS256 JWT stored in an `HttpOnly` Cookie and verified server-side.
 - Do not commit `.env.local` or certificates to Git.

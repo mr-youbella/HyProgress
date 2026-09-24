@@ -298,8 +298,9 @@ function getPlayerError(response: Response, data: Record<string, unknown>): stri
 		: "Couldn't find that player. Check the spelling and try again.";
 }
 
-async function fetchPlayerData(username: string): Promise<PlayerData> {
-	const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
+async function fetchPlayerData(username: string, adminPreview = false): Promise<PlayerData> {
+	const query = adminPreview ? "?from=admin" : "";
+	const response = await fetch(`/api/player/${encodeURIComponent(username)}${query}`);
 	const data: Record<string, unknown> = await response.json();
 
 	if (!response.ok)
@@ -311,7 +312,7 @@ async function fetchPlayerData(username: string): Promise<PlayerData> {
 	return toPlayerData(data);
 }
 
-export default function HyprogressTracker({ initialUsername }: { initialUsername?: string }) {
+export default function HyprogressTracker({ initialUsername, adminPreview = false }: { initialUsername?: string; adminPreview?: boolean }) {
 	const [searchInput, setSearchInput] = useState(initialUsername ?? "");
 	const [player, setPlayer] = useState<PlayerData | null>(null);
 	const [friendInput, setFriendInput] = useState("");
@@ -337,7 +338,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 			setError(null);
 
 			try {
-				const result = await fetchPlayerData(username);
+				const result = await fetchPlayerData(username, adminPreview);
 				if (!isCancelled)
 					setPlayer(result);
 			}
@@ -353,7 +354,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 
 		void loadPlayer();
 		return () => { isCancelled = true; };
-	}, [initialUsername]);
+	}, [initialUsername, adminPreview]);
 
 	async function handleSearch() {
 		const username = searchInput.trim();

@@ -1,5 +1,6 @@
 import { recordPlayerSearch } from "@/lib/database";
 import { limitPlayerSearch } from "@/lib/rate_limit";
+import { ADMIN_SESSION_COOKIE, verifyAdminSessionToken } from "@/lib/admin_auth";
 import { after, NextRequest, NextResponse } from "next/server";
 
 function getClientIp(request: NextRequest): string {
@@ -105,7 +106,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 			bedsLost: bedwars[`${prefix}_beds_lost_bedwars`] ?? 0
 		}));
 
-		after(() => recordPlayerSearch(mojangData.name));
+		const isAdminPreview = request.nextUrl.searchParams.get("from") === "admin" && await verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value);
+
+		if (!isAdminPreview)
+			after(() => recordPlayerSearch(mojangData.name));
 
 		return NextResponse.json({
 			username: mojangData.name,
