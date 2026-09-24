@@ -28,7 +28,6 @@ type PlayerData = {
 	firstLogin: number | null;
 	guildName: string | null;
 	guildTag: string | null;
-	guildRank: string | null;
 	hypixelRank: string | null;
 	wins: number;
 	losses: number;
@@ -251,7 +250,6 @@ function toPlayerData(data: Record<string, unknown>): PlayerData {
 		firstLogin: typeof data.firstLogin === "number" ? data.firstLogin : null,
 		guildName: typeof data.guildName === "string" ? data.guildName : null,
 		guildTag: typeof data.guildTag === "string" ? data.guildTag : null,
-		guildRank: typeof data.guildRank === "string" ? data.guildRank : null,
 		hypixelRank: typeof data.hypixelRank === "string" ? data.hypixelRank : null,
 		wins: Number(data.wins ?? 0),
 		losses: Number(data.losses ?? 0),
@@ -552,7 +550,7 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 								</div>
 							)}
 						</div>
-						<div className="rounded-2xl bg-linear-to-brom-white/[0.06] to-white/0 p-px">
+						<div className="rounded-2xl bg-linear-to-b from-white/6 to-white/0 p-px">
 							<div className="rounded-[15px] bg-[#101014] px-6 py-7 sm:px-8">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 									<div className={`flex items-center gap-4 ${currentLevel >= 100 ? "max-sm:flex-wrap" : ""}`}>
@@ -740,6 +738,37 @@ export default function HyprogressTracker({ initialUsername }: { initialUsername
 										</div>
 									))}
 								</div>
+							</div>
+						</div>
+					</section>
+				)}
+
+				{!player && !isLoading && (
+					<section className="border-b border-white/10 py-12 sm:py-16">
+						<div className="max-w-xl">
+							<p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-400">
+								Built for Bedwars players
+							</p>
+							<h2 className="mt-3 font-['Fraunces'] text-3xl font-semibold tracking-tight text-stone-50 sm:text-4xl">
+								Understand the numbers behind your next star.
+							</h2>
+							<p className="mt-4 text-sm leading-7 text-stone-400">
+								Hyprogress reads public Hypixel Bedwars data and turns it into a simple view of a player&rsquo;s level, lifetime performance, game-mode stats, and remaining XP. Use it to check your own progress or compare it with a friend.
+							</p>
+						</div>
+
+						<div className="mt-8 grid gap-3 sm:grid-cols-3">
+							<div className="rounded-xl border border-white/10 bg-white/3 p-4">
+								<h3 className="text-sm font-semibold text-stone-200">Clear overview</h3>
+								<p className="mt-2 text-xs leading-5 text-stone-500">Wins, final kills, beds, and useful ratios in one place.</p>
+							</div>
+							<div className="rounded-xl border border-white/10 bg-white/3 p-4">
+								<h3 className="text-sm font-semibold text-stone-200">Play by mode</h3>
+								<p className="mt-2 text-xs leading-5 text-stone-500">Open the mode breakdown to inspect Solo, Doubles, 3v3v3v3, and more.</p>
+							</div>
+							<div className="rounded-xl border border-white/10 bg-white/3 p-4">
+								<h3 className="text-sm font-semibold text-stone-200">Set a goal</h3>
+								<p className="mt-2 text-xs leading-5 text-stone-500">See the XP left for the next level and practical ways to earn it.</p>
 							</div>
 						</div>
 					</section>

@@ -1,7 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getAdminSearchStats } from "@/lib/database";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+	title: "Admin dashboard",
+	robots: { index: false, follow: false }
+};
 
 function formatDate(date: Date): string {
 	return new Intl.DateTimeFormat("en", {
@@ -70,7 +76,7 @@ export default async function AdminPage() {
 									) : (
 										stats.recentSearches.map((search, index) => (
 											<div className="flex items-center justify-between gap-4 px-5 py-3" key={`${search.playerName}-${search.searchedAt.getTime()}-${index}`}>
-												<Link className="font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(search.playerName)}`}>
+												<Link target="_blank" className="font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(search.playerName)}`}>
 													{search.playerName}
 												</Link>
 												<time className="shrink-0 text-right text-[11px] text-stone-500" dateTime={search.searchedAt.toISOString()}>
@@ -94,7 +100,7 @@ export default async function AdminPage() {
 										stats.topPlayers.map((player) => (
 											<div className="px-5 py-3" key={player.playerName}>
 												<div className="flex items-center justify-between gap-3">
-													<Link className="truncate font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(player.playerName)}`}>
+													<Link target="_blank" className="truncate font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(player.playerName)}`}>
 														{player.playerName}
 													</Link>
 													<span className="font-mono text-sm tabular-nums">{player.searchCount.toLocaleString()}</span>

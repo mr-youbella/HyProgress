@@ -3,7 +3,7 @@ import "./globals.css";
 
 const SITE_URL = "https://hyprogress.vercel.app";
 const SITE_NAME = "Hyprogress";
-const SITE_DESCRIPTION = "Search any Hypixel Bedwars player and see exactly what it takes to reach their next level — broken down by wins, final kills, beds broken, and playtime.";
+const SITE_DESCRIPTION = "Search any Hypixel Bedwars player to view lifetime stats, game-mode breakdowns, kill style, and the XP needed for their next Bedwars level.";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
 		url: SITE_URL,
 		siteName: SITE_NAME,
 		title: `${SITE_NAME} — Hypixel Bedwars XP Tracker`,
-		description: "Know exactly what's left. Search a player and see a clear breakdown of what closes the gap to their next star.",
+		description: SITE_DESCRIPTION,
 		images: [
 			{
 				url: "/og-image.png",
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
 	twitter: {
 		card: "summary_large_image",
 		title: `${SITE_NAME} — Hypixel Bedwars XP Tracker`,
-		description: "Know exactly what's left to reach your next Bedwars level.",
+		description: SITE_DESCRIPTION,
 		images: ["/og-image.png"]
 	},
 

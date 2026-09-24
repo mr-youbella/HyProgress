@@ -12,7 +12,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 	try {
 		const { username } = await params;
 
-		if (!username)
+		if (!/^[A-Za-z0-9_]{1,16}$/.test(username))
 			return NextResponse.json({ error: "Username is required" }, { status: 400 });
 
 		const rateLimit = await limitPlayerSearch(getClientIp(request));
@@ -72,10 +72,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 		const guildData = await guildResponse.json();
 		const guild = guildData.success ? guildData.guild : null;
-		const guildMember = guild?.members?.find(
-			(member: { uuid: string }) => member.uuid === mojangData.id
-		);
-
 		const player = hypixelData.player;
 		let hypixelRank = null;
 
@@ -122,7 +118,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 			firstLogin: player?.firstLogin ?? null,
 			guildName: guild?.name ?? null,
 			guildTag: guild?.tag ?? null,
-			guildRank: guildMember?.rank ?? null,
 			hypixelRank: hypixelRank,
 			wins: bedwars.wins_bedwars ?? 0,
 			losses: bedwars.losses_bedwars ?? 0,

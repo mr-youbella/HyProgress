@@ -1,12 +1,12 @@
 {
-	"name": "Hypixel Bedwars Progression",
-	"short_name": "Bedwars Stats",
-	"description": "Search any Hypixel Bedwars player and see exactly what it takes to reach their next level — broken down by wins, final kills, beds broken, and playtime.",
+	"name": "Hyprogress — Hypixel Bedwars Tracker",
+	"short_name": "Hyprogress",
+	"description": "Search Hypixel Bedwars players, explore their stats, and see the XP needed for the next level.",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
-	"theme_color": "#111827",
-	"background_color": "#111827",
+	"theme_color": "#0B0B0F",
+	"background_color": "#0B0B0F",
 	"icons": [
 		{
 			"src": "/logo.png",
