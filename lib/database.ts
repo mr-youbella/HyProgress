@@ -66,9 +66,7 @@ export async function getAdminSearchStats(): Promise<AdminSearchStats | null> {
 				 FROM player_searches`
 			),
 			pool.query<{ player_name: string; searched_at: Date }>("SELECT player_name, searched_at FROM player_searches ORDER BY searched_at DESC LIMIT 30"),
-			pool.query<{ player_name: string; search_count: string; last_searched_at: Date }>(
-				"SELECT player_name, COUNT(*) AS search_count, MAX(searched_at) AS last_searched_at FROM player_searches GROUP BY player_name ORDER BY search_count DESC, last_searched_at DESC LIMIT 8"
-			)
+			pool.query<{ player_name: string; search_count: string; last_searched_at: Date }>("SELECT player_name, COUNT(*) AS search_count, MAX(searched_at) AS last_searched_at FROM player_searches GROUP BY player_name ORDER BY search_count DESC, last_searched_at DESC LIMIT 10")
 		]);
 
 		const row = summary.rows[0];
