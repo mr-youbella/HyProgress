@@ -221,14 +221,14 @@ function buildStatRows(player: PlayerData): StatTile[][] {
 			{ label: "WLR", value: formatRatio(player.wins, player.losses), valueClass: "text-amber-400" }
 		],
 		[
-			{ label: "Final Kills", value: player.finalKills.toLocaleString(), valueClass: "text-emerald-400" },
-			{ label: "Final Deaths", value: player.finalDeaths.toLocaleString(), valueClass: "text-rose-400" },
-			{ label: "FKDR", value: formatRatio(player.finalKills, player.finalDeaths), valueClass: "text-amber-400" }
-		],
-		[
 			{ label: "Kills", value: player.kills.toLocaleString(), valueClass: "text-emerald-400" },
 			{ label: "Deaths", value: player.deaths.toLocaleString(), valueClass: "text-rose-400" },
 			{ label: "KDR", value: formatRatio(player.kills, player.deaths), valueClass: "text-amber-400" }
+		],
+		[
+			{ label: "Final Kills", value: player.finalKills.toLocaleString(), valueClass: "text-emerald-400" },
+			{ label: "Final Deaths", value: player.finalDeaths.toLocaleString(), valueClass: "text-rose-400" },
+			{ label: "FKDR", value: formatRatio(player.finalKills, player.finalDeaths), valueClass: "text-amber-400" }
 		],
 		[
 			{ label: "Beds Broken", value: player.bedsBroken.toLocaleString(), valueClass: "text-emerald-400" },
