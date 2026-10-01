@@ -68,7 +68,7 @@ export default async function AdminPage() {
 							<div className="overflow-hidden rounded-xl border border-white/10 bg-white/3">
 								<div className="border-b border-white/10 px-5 py-4">
 									<h2 className="font-semibold">Latest searches</h2>
-									<p className="mt-1 text-xs text-stone-500">Latest 30 completed searches.</p>
+									<p className="mt-1 text-xs text-stone-500">Latest 45 completed searches.</p>
 								</div>
 								<div className="divide-y divide-white/5">
 									{stats.recentSearches.length === 0 ? (

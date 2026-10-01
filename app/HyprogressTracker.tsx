@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
@@ -465,8 +466,8 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 	}).filter((group) => group.rows.length > 0);
 
 	return (
-		<div className="relative min-h-screen overflow-hidden bg-[#0B0B0F] text-stone-100">
-			<div className="relative mx-auto max-w-2xl px-5 pb-24 sm:px-6">
+		<div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#0B0B0F] text-stone-100">
+			<div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 pb-8 sm:px-6">
 				<header className="flex items-center justify-between border-b border-white/10 py-6">
 					<div className="flex items-center gap-2">
 						<Image src="/logo.svg" alt="Hyprogress" width={20} height={20} className="rounded-sm" />
@@ -482,9 +483,6 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 					<h1 className="mb-4 font-['Fraunces'] text-[2.5rem] font-semibold leading-[1.15] tracking-tight text-stone-50 sm:text-5xl">
 						Know exactly<br />what&rsquo;s <em className="text-emerald-400">left</em>.
 					</h1>
-					<p className="mx-auto mb-9 max-w-sm text-[15px] leading-relaxed text-stone-500">
-						Search any player and see a clear breakdown of what closes the gap to their next star.
-					</p>
 
 					<div className="mx-auto flex max-w-md items-stretch gap-2">
 						<div className="relative flex-1">
@@ -500,7 +498,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 							/>
 						</div>
 						<button
-							className="shrink-0 rounded-lg bg-emerald-400 px-5 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-300 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
+							className="shrink-0 rounded-lg bg-emerald-400 px-5 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed"
 							onClick={handleSearch}
 							disabled={isLoading}
 						>
@@ -521,7 +519,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 									<h2 className="text-[13px] font-semibold tracking-[0.08em] text-stone-200">YOU VS A FRIEND</h2>
 									<p className="mt-1 text-[11px] text-stone-500">Compare Bedwars progress with another player.</p>
 								</div>
-								{friend && <button className="text-[11px] text-stone-500 hover:text-stone-300 cursor-pointer" onClick={() => setFriend(null)}>Clear</button>}
+								{friend && <button className="text-[11px] text-stone-500 hover:text-stone-300" onClick={() => setFriend(null)}>Clear</button>}
 							</div>
 							<div className="flex items-stretch gap-2">
 								<input
@@ -531,7 +529,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 									onChange={(event) => setFriendInput(event.target.value)}
 									onKeyDown={(event) => { if (event.key === "Enter") handleFriendSearch(); }}
 								/>
-								<button className="shrink-0 rounded-lg border border-emerald-400/40 px-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/10 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed" onClick={handleFriendSearch} disabled={isFriendLoading}>
+								<button className="shrink-0 rounded-lg border border-emerald-400/40 px-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/10 disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleFriendSearch} disabled={isFriendLoading}>
 									{isFriendLoading ? "Loading" : "Compare"}
 								</button>
 							</div>
@@ -606,7 +604,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 									</div>
 									<div className="flex items-center gap-4">
 										<button
-											className="rounded-md border border-white/10 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300 cursor-pointer"
+											className="rounded-md border border-white/10 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300"
 											onClick={handleShare}
 										>
 											{isCopied ? "LINK COPIED" : "SHARE"}
@@ -650,7 +648,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 											<p className="mt-1 text-[10px] text-stone-600">Lifetime stats by mode & Kill style</p>
 										</div>
 										<button
-											className="flex items-center shrink-0 rounded-md border border-white/10 px-3 py-1.5 text-[10px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300 cursor-pointer"
+											className="flex items-center shrink-0 rounded-md border border-white/10 px-3 py-1.5 text-[10px] font-semibold tracking-wide text-stone-400 transition-colors hover:border-emerald-400/40 hover:text-emerald-300"
 											onClick={() => setIsModeStatsOpen((isOpen) => !isOpen)}
 											aria-expanded={isModeStatsOpen}
 										>
@@ -662,7 +660,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 											{player.modeStats.map((mode) => (
 												<button
 													key={mode.id}
-													className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedMode?.id === mode.id ? "border-emerald-400 bg-emerald-400 text-emerald-950" : "border-white/10 text-stone-400 hover:border-white/25 hover:text-stone-200"}`}
+													className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${selectedMode?.id === mode.id ? "border-emerald-400 bg-emerald-400 text-emerald-950" : "border-white/10 text-stone-400 hover:border-white/25 hover:text-stone-200"}`}
 													onClick={() => setSelectedModeId(mode.id)}
 												>
 													{mode.label}
@@ -774,6 +772,13 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 						</div>
 					</section>
 				)}
+
+				<footer className="mt-auto flex items-center justify-between gap-4 border-t border-white/10 py-6 text-[11px] text-stone-600">
+					<span>Independent Hypixel Bedwars community tool.</span>
+					<Link className="shrink-0 transition-colors hover:text-stone-300" href="/privacy">
+						Privacy
+					</Link>
+				</footer>
 			</div>
 		</div>
 	);
