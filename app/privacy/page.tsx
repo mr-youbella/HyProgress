@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -36,7 +37,8 @@ export default function PrivacyPage() {
 			<div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
 				<header className="flex items-center justify-between border-b border-white/10 pb-6">
 					<Link className="flex items-center gap-2 text-sm font-semibold tracking-[0.08em] text-stone-200" href="/">
-						<span className="text-emerald-400">◆</span> HYPROGRESS
+						<Image src="/logo.svg" alt="Hyprogress" width={20} height={20} className="rounded-sm" />
+						HYPROGRESS
 					</Link>
 					<Link className="text-xs text-stone-500 transition-colors hover:text-stone-200" href="/">
 						Back to search

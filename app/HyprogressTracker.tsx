@@ -775,7 +775,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 
 				<footer className="mt-auto flex items-center justify-between gap-4 border-t border-white/10 py-6 text-[11px] text-stone-600">
 					<span>Independent Hypixel Bedwars community tool.</span>
-					<Link className="shrink-0 transition-colors hover:text-stone-300" href="/privacy">
+					<Link className="shrink-0 transition-colors hover:text-stone-300 underline" href="/privacy">
 						Privacy
 					</Link>
 				</footer>
