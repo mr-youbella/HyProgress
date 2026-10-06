@@ -123,6 +123,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 			guildName: guild?.name ?? null,
 			guildTag: guild?.tag ?? null,
 			hypixelRank: hypixelRank,
+			gamesPlayed: bedwars.games_played_bedwars ?? ((bedwars.wins_bedwars ?? 0) + (bedwars.losses_bedwars ?? 0)),
 			wins: bedwars.wins_bedwars ?? 0,
 			losses: bedwars.losses_bedwars ?? 0,
 			kills: bedwars.kills_bedwars ?? 0,

@@ -30,6 +30,7 @@ type PlayerData = {
 	guildName: string | null;
 	guildTag: string | null;
 	hypixelRank: string | null;
+	gamesPlayed: number;
 	wins: number;
 	losses: number;
 	kills: number;
@@ -252,6 +253,7 @@ function toPlayerData(data: Record<string, unknown>): PlayerData {
 		guildName: typeof data.guildName === "string" ? data.guildName : null,
 		guildTag: typeof data.guildTag === "string" ? data.guildTag : null,
 		hypixelRank: typeof data.hypixelRank === "string" ? data.hypixelRank : null,
+		gamesPlayed: Number(data.gamesPlayed ?? 0),
 		wins: Number(data.wins ?? 0),
 		losses: Number(data.losses ?? 0),
 		kills: Number(data.kills ?? 0),
@@ -638,7 +640,13 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 											<p className="mb-1.5 whitespace-nowrap text-[8px] tracking-[0.08em] text-stone-500 sm:text-[10px] sm:tracking-widest">{tile.label.toUpperCase()}</p>
 											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
 										</div>
-									))}
+										))}
+								</div>
+								<div className="mt-px overflow-hidden rounded-lg bg-white/10">
+									<div className="bg-[#101014] px-3 py-3 text-center">
+										<p className="mb-1 text-[8px] tracking-[0.08em] text-stone-500 sm:text-[10px] sm:tracking-widest">TOTAL GAMES PLAYED</p>
+										<p className="font-mono text-lg font-bold tabular-nums text-sky-300 sm:text-xl">{player.gamesPlayed.toLocaleString()}</p>
+									</div>
 								</div>
 
 								<div className="mt-6">
