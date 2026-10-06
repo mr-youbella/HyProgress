@@ -469,6 +469,12 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 
 	return (
 		<div className="relative flex min-h-dvh flex-col overflow-hidden bg-[#0B0B0F] text-stone-100">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 bg-cover bg-center"
+				style={{ backgroundImage: "url('/bedwars_background.png')" }}
+			/>
+			<div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#0B0B0F]/50" />
 			<div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col px-5 pb-8 sm:px-6">
 				<header className="flex items-center justify-between border-b border-white/10 py-6">
 					<div className="flex items-center gap-2">
