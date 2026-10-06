@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, Clock3 } from 'lucide-react';
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
 
 type ModeStats = {
@@ -215,6 +215,59 @@ type StatTile = {
 	valueClass: string;
 };
 
+const RECENT_PLAYERS_KEY = "hyprogress:recent-players";
+
+function rememberRecentPlayer(username: string): void {
+	try {
+		const saved = JSON.parse(localStorage.getItem(RECENT_PLAYERS_KEY) ?? "[]") as unknown;
+		const recent = Array.isArray(saved) ? saved.filter((item) => (typeof item === "string")) : [];
+		const next = [username, ...recent.filter((item) => (item.toLowerCase() !== username.toLowerCase()))].slice(0, 3);
+		localStorage.setItem(RECENT_PLAYERS_KEY, JSON.stringify(next));
+	}
+	catch { }
+}
+
+function RecentSearches() {
+	const [players, setPlayers] = useState<string[]>([]);
+
+	useEffect(() => {
+		function loadPlayers() {
+			try {
+				const saved = JSON.parse(localStorage.getItem(RECENT_PLAYERS_KEY) ?? "[]") as unknown;
+				setPlayers(Array.isArray(saved) ? saved.filter((item) => (typeof item === "string")).slice(0, 3) : []);
+			}
+			catch {
+				setPlayers([]);
+			}
+		}
+
+		loadPlayers();
+	}, []);
+
+	if (players.length === 0)
+		return null;
+
+	return (
+		<section className="border-b border-white/10 py-7">
+			<div className="mb-4 flex items-center gap-2">
+				<Clock3 aria-hidden="true" className="size-5 text-stone-300" />
+				<h2 className="font-['Fraunces'] text-2xl font-semibold tracking-tight text-stone-50">Recent Searches</h2>
+			</div>
+			<div className="flex gap-3 overflow-x-auto pb-1">
+				{players.map((username) => (
+					<Link
+						className="shrink-0 rounded-xl border border-white/10 bg-white/12 px-5 py-3 text-sm font-semibold text-stone-100 transition-colors hover:border-emerald-400/40 hover:bg-white/18"
+						href={`/player/${encodeURIComponent(username)}`}
+						key={username}
+					>
+						{username}
+					</Link>
+				))}
+			</div>
+		</section>
+	);
+}
+
 function buildStatRows(player: PlayerData): StatTile[][] {
 	return [
 		[
@@ -343,6 +396,8 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 			try {
 				const result = await fetchPlayerData(username, adminPreview);
 				if (!isCancelled)
+					rememberRecentPlayer(result.username);
+				if (!isCancelled)
 					setPlayer(result);
 			}
 			catch (error) {
@@ -371,6 +426,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 
 		try {
 			const result = await fetchPlayerData(username);
+			rememberRecentPlayer(result.username);
 			setPlayer(result);
 			window.history.pushState({}, "", `/player/${encodeURIComponent(result.username)}`);
 		}
@@ -408,7 +464,9 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 		setFriendError(null);
 
 		try {
-			setFriend(await fetchPlayerData(username));
+			const result = await fetchPlayerData(username);
+			rememberRecentPlayer(result.username);
+			setFriend(result);
 		}
 		catch (error) {
 			console.error("Friend search error:", error);
@@ -518,6 +576,8 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 						<p className="mt-4 text-[13px] text-rose-400">{error}</p>
 					)}
 				</section>
+
+				{!player && <RecentSearches />}
 
 				{player && (
 					<section className="pt-12">
@@ -646,7 +706,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 											<p className="mb-1.5 whitespace-nowrap text-[8px] tracking-[0.08em] text-stone-500 sm:text-[10px] sm:tracking-widest">{tile.label.toUpperCase()}</p>
 											<p className={`font-mono text-lg font-bold tabular-nums sm:text-xl ${tile.valueClass}`}>{tile.value}</p>
 										</div>
-										))}
+									))}
 								</div>
 								<div className="mt-px overflow-hidden rounded-lg bg-white/10">
 									<div className="bg-[#101014] px-3 py-3 text-center">

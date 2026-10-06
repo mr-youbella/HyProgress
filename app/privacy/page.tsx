@@ -14,6 +14,10 @@ const sections = [
 		content: "When a player lookup completes, Hyprogress stores the searched Minecraft player name and the time of the search. This information is used to power the private Admin analytics dashboard and understand which player pages are useful. Hyprogress does not require an account or ask for your Minecraft password."
 	},
 	{
+		title: "Local recent searches",
+		content: "The home page can remember up to three recently viewed player names in your own browser localStorage. This history stays on your device, is not sent to Hyprogress, and can be removed by clearing the site data in your browser."
+	},
+	{
 		title: "Rate limiting",
 		content: "The service uses the request IP address temporarily to limit repeated API requests and reduce abuse. The application does not intentionally save that IP address in its player_searches database table."
 	},
