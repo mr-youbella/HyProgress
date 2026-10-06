@@ -33,8 +33,14 @@ export default async function AdminPage() {
 	const stats = await getAdminSearchStats();
 
 	return (
-		<main className="min-h-screen bg-[#0B0B0F] px-5 py-8 text-stone-100 sm:px-8 sm:py-12">
-			<div className="mx-auto max-w-5xl">
+		<main className="relative isolate min-h-screen overflow-hidden bg-[#0B0B0F] px-5 py-8 text-stone-100 sm:px-8 sm:py-12">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center blur-[2px]"
+				style={{ backgroundImage: "url('/bedwars-background.png')" }}
+			/>
+			<div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-[#0B0B0F]/70" />
+			<div className="relative z-10 mx-auto max-w-5xl">
 				<header className="flex items-center justify-between border-b border-white/10 pb-6">
 					<div>
 						<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-400">

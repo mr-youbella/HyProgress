@@ -37,8 +37,14 @@ const sections = [
 
 export default function PrivacyPage() {
 	return (
-		<main className="flex min-h-dvh flex-col bg-[#0B0B0F] px-5 py-8 text-stone-100 sm:px-8 sm:py-12">
-			<div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+		<main className="relative isolate flex min-h-dvh flex-col overflow-hidden bg-[#0B0B0F] px-5 py-8 text-stone-100 sm:px-8 sm:py-12">
+			<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center blur-[2px]"
+					style={{ backgroundImage: "url('/bedwars-background.png')" }}
+				/>
+			<div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-[#0B0B0F]/60" />
+			<div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col">
 				<header className="flex items-center justify-between border-b border-white/10 pb-6">
 					<Link className="flex items-center gap-2 text-sm font-semibold tracking-[0.08em] text-stone-200" href="/">
 						<Image src="/logo.svg" alt="Hyprogress" width={20} height={20} className="rounded-sm" />
