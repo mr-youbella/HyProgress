@@ -19,7 +19,7 @@ const sections = [
 	},
 	{
 		title: "External services",
-		content: "Player data is requested from Mojang and Hypixel. Skin images may be loaded from Statsify. Search analytics are stored in a hosted PostgreSQL database, and temporary rate-limit counters are handled by Upstash Redis. Each service may process requests according to its own privacy policy."
+		content: "Player data is requested from Mojang and Hypixel. The displayed public statistics may include Bedwars level, total games played, wins, kills, final kills, beds, and related values. Skin images may be loaded from Statsify. Search analytics are stored in a hosted PostgreSQL database, and temporary rate-limit counters are handled by Upstash Redis. Each service may process requests according to its own privacy policy."
 	},
 	{
 		title: "Cookies and Admin access",

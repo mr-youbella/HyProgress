@@ -1,7 +1,7 @@
 {
 	"name": "Hyprogress — Hypixel Bedwars Tracker",
 	"short_name": "Hyprogress",
-	"description": "Search Hypixel Bedwars players, explore their stats, and see the XP needed for the next level.",
+	"description": "Search Hypixel Bedwars players, view total games played and stats, and see the XP needed for the next level.",
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",

@@ -766,7 +766,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 								Understand the numbers behind your next star.
 							</h2>
 							<p className="mt-4 text-sm leading-7 text-stone-400">
-								Hyprogress reads public Hypixel Bedwars data and turns it into a simple view of a player&rsquo;s level, lifetime performance, game-mode stats, and remaining XP. Use it to check your own progress or compare it with a friend.
+								Hyprogress reads public Hypixel Bedwars data and turns it into a simple view of a player&rsquo;s level, total games played, lifetime performance, game-mode stats, and remaining XP. Use it to check your own progress or compare it with a friend.
 							</p>
 						</div>
 

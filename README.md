@@ -17,7 +17,7 @@ Hyprogress takes a Minecraft username and turns public Hypixel Bedwars data into
 It shows:
 
 - Current Bedwars level, XP progress, rank, skin, guild, and online status.
-- Lifetime wins, losses, kills, deaths, final kills, final deaths, and beds.
+- Total games played plus lifetime wins, losses, kills, deaths, final kills, final deaths, and beds.
 - WLR, KDR, FKDR, and BBLR ratios.
 - A collapsible breakdown for Solo, Doubles, 3v3v3v3, 4v4v4v4, and 4v4.
 - Kill Style: the player’s most common elimination methods.

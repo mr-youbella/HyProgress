@@ -3,7 +3,7 @@ import "./globals.css";
 
 const SITE_URL = "https://hyprogress.vercel.app";
 const SITE_NAME = "Hyprogress";
-const SITE_DESCRIPTION = "Search any Hypixel Bedwars player to view lifetime stats, game-mode breakdowns, kill style, and the XP needed for their next Bedwars level.";
+const SITE_DESCRIPTION = "Search any Hypixel Bedwars player to view lifetime stats, total games played, game-mode breakdowns, kill style, and the XP needed for their next Bedwars level.";
 
 export const metadata: Metadata = {
 	metadataBase: new URL(SITE_URL),
