@@ -106,7 +106,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 			bedsLost: bedwars[`${prefix}_beds_lost_bedwars`] ?? 0
 		}));
 
-		const isAdminPreview = request.nextUrl.searchParams.get("from") === "admin" && await verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value);
+		const isAdminPreview = await verifyAdminSessionToken(request.cookies.get(ADMIN_SESSION_COOKIE)?.value);
 
 		if (!isAdminPreview)
 			after(() => recordPlayerSearch(mojangData.name));
