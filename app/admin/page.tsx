@@ -82,7 +82,7 @@ export default async function AdminPage() {
 									) : (
 										stats.recentSearches.map((search, index) => (
 											<div className="flex items-center justify-between gap-4 px-5 py-3" key={`${search.playerName}-${search.searchedAt.getTime()}-${index}`}>
-												<Link target="_blank" className="font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(search.playerName)}?from=admin`}>
+												<Link target="_blank" className="font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(search.playerName)}`}>
 													{search.playerName}
 												</Link>
 												<time className="shrink-0 text-right text-[11px] text-stone-500" dateTime={search.searchedAt.toISOString()}>
@@ -106,7 +106,7 @@ export default async function AdminPage() {
 										stats.topPlayers.map((player) => (
 											<div className="px-5 py-3" key={player.playerName}>
 												<div className="flex items-center justify-between gap-3">
-													<Link target="_blank" className="truncate font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(player.playerName)}?from=admin`}>
+													<Link target="_blank" className="truncate font-mono text-sm text-emerald-300 hover:text-emerald-200" href={`/player/${encodeURIComponent(player.playerName)}`}>
 														{player.playerName}
 													</Link>
 													<span className="font-mono text-sm tabular-nums">{player.searchCount.toLocaleString()}</span>
