@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowUp, Clock3 } from 'lucide-react';
 import { getLevelXp, calculateCurrentLevel, calculateXpIntoLevel, calculateXpRemaining, calculateSourceCounts } from "@/lib/bedwarsXp";
+import { isAdminPreview } from "@/lib/admin_auth";
 
 type ModeStats = {
 	id: string;
@@ -354,9 +355,8 @@ function getPlayerError(response: Response, data: Record<string, unknown>): stri
 		: "Couldn't find that player. Check the spelling and try again.";
 }
 
-async function fetchPlayerData(username: string, adminPreview = false): Promise<PlayerData> {
-	const query = adminPreview ? "?from=admin" : "";
-	const response = await fetch(`/api/player/${encodeURIComponent(username)}${query}`);
+async function fetchPlayerData(username: string): Promise<PlayerData> {
+	const response = await fetch(`/api/player/${encodeURIComponent(username)}`);
 	const data: Record<string, unknown> = await response.json();
 
 	if (!response.ok)
@@ -394,7 +394,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 			setError(null);
 
 			try {
-				const result = await fetchPlayerData(username, adminPreview);
+				const result = await fetchPlayerData(username);
 				if (!isCancelled)
 					rememberRecentPlayer(result.username);
 				if (!isCancelled)
@@ -412,7 +412,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 
 		void loadPlayer();
 		return () => { isCancelled = true; };
-	}, [initialUsername, adminPreview]);
+	}, [initialUsername]);
 
 	async function handleSearch() {
 		const username = searchInput.trim();
@@ -539,7 +539,7 @@ export default function HyprogressTracker({ initialUsername, adminPreview = fals
 						<Image src="/logo.svg" alt="Hyprogress" width={20} height={20} className="rounded-sm" />
 						<span className="text-[13px] font-semibold tracking-[0.08em]">HYPROGRESS</span>
 					</div>
-					<span className="text-[11px] tracking-[0.14em] text-stone-500">TRACKER</span>
+					<a href={!adminPreview ? "/" : "/admin"} className="text-[11px] tracking-[0.14em] text-stone-500 cursor-pointer">{!adminPreview ? "TRACKER" : "ADMIN"}</a>
 				</header>
 
 				<section className="border-b border-white/10 py-16 text-center">

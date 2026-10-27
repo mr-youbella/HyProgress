@@ -1,4 +1,5 @@
 import { jwtVerify, SignJWT } from "jose";
+import { cookies } from "next/headers";
 
 export const ADMIN_SESSION_COOKIE = "hyprogress_admin_session";
 function getSessionSecret(): string | null {
@@ -31,4 +32,10 @@ export async function verifyAdminSessionToken(token: string | undefined): Promis
 	catch {
 		return false;
 	}
+}
+
+export async function isAdminPreview(): Promise<boolean> {
+	const cookie = await cookies();
+	const is_admin = await verifyAdminSessionToken(cookie.get(ADMIN_SESSION_COOKIE)?.value);
+	return (is_admin);
 }
