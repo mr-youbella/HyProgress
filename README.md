@@ -1,107 +1,172 @@
-# <p align="center"><img src="public/logo.svg" alt="Hyprogress" width="72" /></p>
+<div align="center">
 
-<h1 align="center">HyProgress</h1>
+<img src="public/logo.svg" alt="HyProgress logo" width="64" />
 
-<p align="center">
-  A focused Hypixel Bedwars progression tracker for understanding a player’s stats and the XP needed for their next level.
-</p>
+# HyProgress
 
-<p align="center">
-  <a href="https://hyprogress.vercel.app">Live website</a>
-</p>
+**Hypixel Bedwars stats, comparisons, and the XP left for your next level.**
 
-## What it does
+[Website](https://hyprogress.vercel.app) · [Getting started](#getting-started) · [How it works](#how-it-works)
 
-Hyprogress takes a Minecraft username and turns public Hypixel Bedwars data into a clear, shareable player page.
+</div>
 
-It shows:
+HyProgress turns a Minecraft username into a shareable view of public Hypixel Bedwars data. It brings lifetime performance, game-mode statistics, and a next-level estimate into one page, with a second-player comparison alongside it.
 
-- Current Bedwars level, XP progress, rank, skin, guild, and online status.
-- Total games played plus lifetime wins, losses, kills, deaths, final kills, final deaths, and beds.
-- WLR, KDR, FKDR, and BBLR ratios.
-- A collapsible breakdown for Solo, Doubles, 3v3v3v3, 4v4v4v4, and 4v4.
-- Kill Style: the player’s most common elimination methods.
-- A Next Level Goal showing practical XP sources and the amount needed.
-- A friend comparison view and a shareable `/player/<username>` URL.
+Public searches do not require an account or a Minecraft password. A separate authenticated admin page shows search activity.
 
-The project is not affiliated with Mojang, Hypixel, or Minecraft. It uses publicly available API data.
+## Features
 
-## How the project works
+| View | What it shows |
+| --- | --- |
+| Player overview | Calculated level, total XP, current-level progress, rank, skin, guild, online status, and available login timestamps. |
+| Lifetime stats | Games played, wins/losses, kills/deaths, final kills/deaths, beds broken/lost, and WLR, KDR, FKDR, and BBLR. |
+| Game modes | A collapsible breakdown for Solo, Doubles, 3v3v3v3, 4v4v4v4, and 4v4. |
+| Kill Style | The four largest nonzero elimination-method counts, drawn from the returned lifetime data. |
+| Next Level Goal | Remaining XP and estimated counts for the fixed XP sources defined in the application. |
+| Friend comparison | Side-by-side level and performance ratios for two players. |
+| Sharing and recent searches | Copyable `/player/<username>` links and up to three recent player names stored in the browser. |
 
-```text
-Browser
-  │
-  ├─ Search /player/<username>
-  │
-  ▼
-Next.js API route: /api/player/<username>
-  │
-  ├─ Mojang API        → resolve username to UUID
-  ├─ Hypixel Player    → Bedwars statistics
-  ├─ Hypixel Status    → online status and current game
-  ├─ Hypixel Guild     → guild information
-  ├─ Upstash Redis     → IP rate limit: 20 requests / 60 seconds
-  └─ PostgreSQL        → record completed searches for /admin
+A search loads a snapshot; the page does not poll for live updates. The game-mode selector changes the stats breakdown, while the level and XP goal use total Bedwars experience.
+
+## Stack
+
+- **Frontend:** React 19.2.8, TypeScript, Tailwind CSS 4, and Lucide icons.
+- **Application server:** Next.js 16.3.3 with the App Router and a server-side player endpoint.
+- **Player data:** Mojang username resolution, Hypixel player/status/guild APIs, and Statsify skin images.
+- **Optional services:** PostgreSQL through `pg` for search analytics, and Upstash Redis for request limiting.
+- **Admin access:** HTTP Basic Authentication, with a signed preview cookie using `jose`.
+
+Dependency versions and scripts are defined in [package.json](package.json), with the resolved dependency tree in [package-lock.json](package-lock.json).
+
+## Getting started
+
+Use **Node.js 20.9.0 or later**, npm, and a Hypixel API key. PostgreSQL and Redis are optional for the public tracker.
+
+```bash
+git clone https://github.com/mr-youbella/HyProgress.git
+cd HyProgress
+npm ci
 ```
 
-The browser never receives the Hypixel API key or database credentials. All sensitive work stays in the server route.
+Copy the [environment template](.env.example) to `.env.local`:
 
-## Main routes
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` and set `HYPIXEL_API_KEY` to your own API key. Leave the optional settings empty unless you are enabling their services.
+
+Then start the development server:
+
+```bash
+npm run dev
+```
+
+Open [localhost:3000](http://localhost:3000), enter a Minecraft username, and select **Search**. A successful lookup updates the address to `/player/<username>`. Open the mode breakdown for detailed stats, enter another name under **You vs a Friend**, or use **Share** to copy the player link.
+
+The server accepts names containing 1–16 letters, digits, or underscores. A resolved Minecraft account must also have Bedwars data available from Hypixel.
+
+### Environment variables
+
+Only `HYPIXEL_API_KEY` is needed for player lookups. Add the optional settings to the same `.env.local` file when enabling their features.
+
+| Variable | Used for |
+| --- | --- |
+| `HYPIXEL_API_KEY` | Required server-side Hypixel API access. |
+| `DATABASE_URL` | PostgreSQL connection string for completed-search logging and admin analytics. |
+| `SUPABASE_CA_CERT` | Database CA certificate when needed for TLS verification; accepts a multiline PEM or escaped `\n` line breaks. |
+| `UPSTASH_REDIS_REST_URL` | Upstash REST endpoint; used together with its token. |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token for rate-limit counters. |
+| `ADMIN_USERNAME` | Username for `/admin`; both admin credentials must be configured to allow access. |
+| `ADMIN_PASSWORD` | Password for `/admin`. |
+| `ADMIN_SESSION_SECRET` | Secret for signing the one-hour admin-preview cookie. |
+
+These settings are read on the server and do not use a `NEXT_PUBLIC_` prefix. `.env.local` is ignored by Git. Restart the development server after changing its configuration.
+
+### Optional database setup
+
+Apply [db/schema.sql](db/schema.sql) to your PostgreSQL database using a SQL client, or the SQL Editor when using Supabase. It creates `player_searches` with an identity ID, player name, search timestamp, and an index on the timestamp.
+
+The connection pool verifies TLS certificates and uses the supplied CA when configured. Without `DATABASE_URL`, lookup requests still work and analytics are unavailable. Database insert/read failures are logged and handled without preventing a successful player response.
+
+The table records lookups, not historical snapshots of player stats. No database migration or data-retention job is included.
+
+## How it works
+
+```mermaid
+flowchart LR
+    B[Browser] --> A[Next.js player API]
+    A --> R[Optional Redis rate limit]
+    A --> M[Mojang username to UUID]
+    M --> H[Hypixel player, status, and guild]
+    H --> A
+    A --> B
+    A -->|After a successful response| D[Optional PostgreSQL search log]
+    B --> S[Statsify skin image]
+```
+
+The endpoint validates the username, checks the request limit when Redis is configured, and resolves the username through Mojang. It then requests the Hypixel player, status, and guild data in parallel and returns the fields needed by the UI. API credentials stay in the server requests.
+
+| Request behavior | Implementation |
+| --- | --- |
+| Username resolution | Mojang fetches request a 300-second revalidation interval. |
+| Hypixel data | Player, status, and guild fetches request 30-second revalidation intervals. |
+| Timeouts | Each upstream fetch has its own eight-second timeout. |
+| Rate limit | Upstash sliding window of 20 player API requests per client IP per 60 seconds. |
+| Limit response | HTTP `429` with a `Retry-After` header, which the UI uses in its error message. |
+| Analytics | Successful non-preview lookups schedule a parameterized insert using Next.js `after()`. |
+
+The IP comes from the first `x-forwarded-for` value, then `x-real-ip`, with `unknown` as a fallback. A deployment needs a trusted proxy that supplies those headers. Without Redis configuration, or when the limiter throws an error, requests proceed without enforcement. Friend lookups use the same endpoint and rate limit.
+
+### XP calculation
+
+[lib/bedwarsXp.ts](lib/bedwarsXp.ts) converts total XP into a level and progress within that level. The implemented costs are 500, 1,000, 2,000, and 3,500 XP for the first four levels, then 5,000 XP per level. The calculation does not repeat the early-level costs at prestige boundaries.
+
+For example, 1,200 total XP gives level 1, with 700 of its 1,000 XP completed and 300 XP remaining. Each goal estimate is `ceil(remaining XP / XP per source)`, using constants in that file. The source rows are separate estimates, not a combined checklist or a prediction of actual match rewards. They are not fetched from an official reward-calculation endpoint.
+
+## Routes and admin analytics
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Search page and project introduction |
-| `/player/<username>` | Direct player result page |
-| `/admin` | Private search analytics dashboard |
-| `/api/player/<username>` | Server-side player data endpoint |
-| `/sitemap.xml` | Public sitemap generated by Next.js |
-| `/robots.txt` | Search crawler rules |
+| `/` | Search interface, introduction, and browser-local recent searches. |
+| `/player/<username>` | Loads a player's result from a shareable URL. |
+| `/api/player/<username>` | JSON endpoint for player data and lookup errors. |
+| `/admin` | Authenticated search analytics dashboard. |
+| `/privacy` | Explanation of storage, third-party services, and admin cookies. |
+| `/sitemap.xml`, `/robots.txt` | Generated public sitemap and crawler rules. |
 
-The `/admin` route is protected by HTTP Basic Authentication in `proxy.ts`. It is also marked `noindex` and excluded from `robots.txt`.
+The admin dashboard shows total searches, case-insensitive unique-player counts, searches in the last 24 hours, the latest **45** records, and up to **31** most-searched names. Missing database configuration or a failed query produces an analytics-unavailable view.
+
+[proxy.ts](proxy.ts) protects `/admin` and its subpaths with Basic Authentication. Missing credentials deny access. With `ADMIN_SESSION_SECRET` set, successful authentication also issues an HS256-signed, HttpOnly preview cookie that expires after one hour. Valid preview requests skip search logging; they still pass through the API's rate limiter. The cookie does not replace Basic Authentication on `/admin`.
+
+Use HTTPS when deploying Basic Authentication. The admin page is marked `noindex`, crawler rules disallow `/admin` and `/api/`, and the sitemap includes only the homepage and privacy page.
 
 ## Project structure
 
 ```text
 app/
-├── HyprogressTracker.tsx       Main client UI and search interactions
-├── page.tsx                    Home page
-├── not-found.tsx               Branded 404 page
-├── player/[username]/page.tsx  Shareable player route
-├── admin/page.tsx              Private analytics dashboard
-├── api/player/[username]/      Mojang + Hypixel server route
-├── layout.tsx                  SEO metadata and structured data
-├── sitemap.ts                  Sitemap generator
-└── robots.ts                   Crawler rules
-
+  HyprogressTracker.tsx       Search, results, comparison, and sharing UI
+  page.tsx                   Home route
+  player/[username]/page.tsx  Player route
+  api/player/[username]/     Mojang and Hypixel lookup endpoint
+  admin/page.tsx             Search analytics dashboard
+  privacy/page.tsx           Privacy information
+  layout.tsx                 Metadata, icons, and structured data
+  not-found.tsx              Custom 404 page
+  robots.ts, sitemap.ts      Crawler configuration
 lib/
-├── bedwarsXp.ts                XP and level calculations
-├── database.ts                 PostgreSQL pool and search analytics
-└── rate_limit.ts               Upstash Redis rate limiter
-
-db/schema.sql                   PostgreSQL table and index
-proxy.ts                        Admin Basic Auth guard
-public/                         Logo, favicon, manifest, and OG image
+  bedwarsXp.ts               Level and goal calculations
+  database.ts                PostgreSQL pool and analytics queries
+  rate_limit.ts              Optional Upstash limiter
+  admin_auth.ts              Preview-token signing and verification
+db/schema.sql                Search-log schema
+proxy.ts                     Admin authentication guard
+public/                      Existing logo, background, manifest, and social image
 ```
 
-## Local setup
+## Checks and production
 
-### Requirements
-
-- Node.js 20 or newer.
-- A Hypixel API key.
-- A Supabase PostgreSQL project if search analytics are needed.
-- An Upstash Redis database if distributed rate limiting is needed.
-
-### Install and run
-
-```bash
-npm install
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-For a production-like local check:
+The available package scripts are:
 
 ```bash
 npm run lint
@@ -109,85 +174,12 @@ npm run build
 npm run start
 ```
 
-## Environment variables
+`start` serves a completed production build; stop the development server first if it is using the same port. Next.js also accepts an explicit Webpack build through `npm run build -- --webpack`. No automated test script is configured in this repository.
 
-Create `.env.local` locally. Never commit it or paste its values into source code.
+For a manual walkthrough, search for an account with Bedwars data, open its direct URL, compare a second player, and copy the share link. Check an invalid name and a player without Bedwars data. With optional services configured, check the admin totals after a public lookup, confirm that a preview lookup is excluded, and verify a `429` response after exceeding the request window.
 
-```env
-HYPIXEL_API_KEY=your_hypixel_key
+The site URL is currently set to `https://hyprogress.vercel.app` in [app/layout.tsx](app/layout.tsx), [app/robots.ts](app/robots.ts), and [app/sitemap.ts](app/sitemap.ts). Update those values when deploying under another domain.
 
-# Supabase PostgreSQL connection string.
-# The pooled connection string (port 6543) is suitable for serverless hosting.
-DATABASE_URL=postgresql://...
+---
 
-# Supabase root CA certificate. Keep the certificate value private.
-# In Vercel, use a multiline value or the escaped `\n` form.
-SUPABASE_CA_CERT=-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----
-
-# Upstash Redis REST credentials.
-UPSTASH_REDIS_REST_URL=https://...
-UPSTASH_REDIS_REST_TOKEN=your_token
-
-# Credentials for /admin.
-ADMIN_USERNAME=choose_a_private_username
-ADMIN_PASSWORD=choose_a_long_unique_password
-
-# A long random secret used to sign the short-lived Admin preview JWT.
-ADMIN_SESSION_SECRET=use_a_long_random_value
-```
-
-Do not prefix these variables with `NEXT_PUBLIC_`. That would expose them to browser JavaScript.
-
-## Database setup
-
-Run `db/schema.sql` in the Supabase SQL Editor:
-
-```sql
-CREATE TABLE player_searches (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    player_name TEXT NOT NULL,
-    searched_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX player_searches_searched_at_idx
-ON player_searches (searched_at DESC);
-```
-
-The table stores one completed player lookup per row. The `id` gives each row a stable identity, which also lets Supabase’s table editor update or delete rows safely. The index keeps the newest-search query fast.
-
-The admin dashboard calculates:
-
-- Total search rows.
-- Distinct player names.
-- Searches during the last 24 hours.
-- The latest 30 searches.
-- The eight most searched player names.
-
-## Redis rate limiting
-
-`lib/rate_limit.ts` uses Upstash Redis and `Ratelimit.slidingWindow(20, "60 s")`. Each client IP can make up to 20 API requests in the sliding 60-second window. When the limit is reached, the API returns HTTP `429` and a `Retry-After` header.
-
-Redis is used for temporary counters, not permanent analytics. PostgreSQL stores the search history; Redis protects the API from accidental or abusive request bursts.
-
-If Redis environment variables are missing or Redis is temporarily unavailable, the current code allows the request and logs the failure. This keeps the site usable, but Redis should be configured and monitored before a public launch.
-
-## Caching and API behavior
-
-- Mojang username resolution is cached for 5 minutes with `revalidate: 300`.
-- Hypixel player, status, and guild responses are cached for 30 seconds with `revalidate: 30`.
-- Each upstream request has an 8-second timeout.
-- Search logging runs after the response using Next.js `after()` so the user does not wait for the database insert.
-- Invalid Minecraft names are rejected before external API calls.
-
-The cache reduces repeated upstream requests, but it does not replace rate limiting. The API still needs protection because many different names can be requested.
-
-## Security notes
-
-- Keep `HYPIXEL_API_KEY`, `DATABASE_URL`, `SUPABASE_CA_CERT`, Redis tokens, and admin credentials server-only.
-- Use HTTPS in production. Basic Authentication encodes credentials with Base64, so HTTPS is required to protect them in transit.
-- Use a long, unique `ADMIN_PASSWORD` and rotate it if it is ever exposed.
-- Do not trust client input; the API validates the Minecraft username and uses parameterized SQL.
-- Do not expose the admin page publicly without setting `ADMIN_USERNAME` and `ADMIN_PASSWORD`.
-- Set `ADMIN_SESSION_SECRET` in every environment so opening a player from Admin does not create a duplicate analytics row.
-- The Admin preview session is a short-lived HS256 JWT stored in an `HttpOnly` Cookie and verified server-side.
-- Do not commit `.env.local` or certificates to Git.
+Created by [mr-youbella](https://github.com/mr-youbella). HyProgress is an independent community project and is not affiliated with Mojang, Hypixel, or Minecraft.
